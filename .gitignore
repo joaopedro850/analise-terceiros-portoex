@@ -1,0 +1,13 @@
+# Arquivos temporários e dados sensíveis
+*.xlsx
+*.xls
+*.json
+*.py
+*.csv
+__pycache__/
+*.pyc
+*.log
+HISTORICO/
+
+# Manter apenas docs/ (GitHub Pages)
+!docs/

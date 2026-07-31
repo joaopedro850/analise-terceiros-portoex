@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="pt-BR"><head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Análise de Terceiros — 28/07/2026 e 29/07/2026 | Portoex</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+:root{--bg:#0d1117;--card:#161b22;--card2:#1c2330;--border:#30363d;--text:#e6edf3;--sub:#8b949e;--green:#3fb950;--red:#f85149;--yellow:#d29922;--blue:#58a6ff;--purple:#bc8cff;--orange:#ffa657;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,sans-serif;min-height:100vh;}
+header{background:var(--card);border-bottom:1px solid var(--border);padding:18px 28px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;}
+.logo{font-size:1.3rem;font-weight:700;color:var(--blue);letter-spacing:1px;}
+.header-dates{display:flex;gap:24px;flex-wrap:wrap;}
+.header-date-item{text-align:center;}
+.header-date-label{font-size:.68rem;color:var(--sub);text-transform:uppercase;letter-spacing:.5px;}
+.header-date-val{font-size:.9rem;font-weight:600;color:var(--text);}
+.tabs{background:var(--card);border-bottom:1px solid var(--border);padding:0 28px;display:flex;gap:4px;overflow-x:auto;}
+.tab{padding:14px 22px;cursor:pointer;font-size:.88rem;font-weight:500;color:var(--sub);border-bottom:2px solid transparent;white-space:nowrap;transition:color .2s;}
+.tab:hover{color:var(--text);}
+.tab.active{color:var(--blue);border-bottom-color:var(--blue);}
+.content{padding:24px 28px;max-width:1400px;margin:0 auto;}
+.kpi-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(155px,1fr));gap:12px;margin-bottom:24px;}
+.kpi{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:16px;}
+.kpi-label{font-size:.7rem;color:var(--sub);text-transform:uppercase;letter-spacing:.4px;margin-bottom:6px;}
+.kpi-val{font-size:1.4rem;font-weight:700;}
+.g{color:var(--green);}.r{color:var(--red);}.b{color:var(--blue);}.y{color:var(--yellow);}
+.section{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:20px;margin-bottom:20px;}
+.sec-title{font-size:.8rem;font-weight:600;color:var(--sub);text-transform:uppercase;letter-spacing:.5px;margin-bottom:16px;}
+.charts-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px;margin-bottom:20px;}
+.chart-box{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:20px;}
+.chart-title{font-size:.78rem;color:var(--sub);text-transform:uppercase;letter-spacing:.5px;margin-bottom:12px;}
+canvas{max-height:220px;}
+table{width:100%;border-collapse:collapse;font-size:.82rem;}
+th{text-align:left;padding:8px 10px;color:var(--sub);font-weight:600;text-transform:uppercase;font-size:.7rem;letter-spacing:.4px;border-bottom:1px solid var(--border);}
+td{padding:9px 10px;border-bottom:1px solid #21262d;vertical-align:middle;}
+tr:last-child td{border-bottom:none;}
+.badge{display:inline-block;padding:2px 8px;border-radius:20px;font-size:.7rem;font-weight:700;}
+.badge-g{background:#1a3a1e;color:var(--green);}.badge-r{background:#3a1a1a;color:var(--red);}.badge-b{background:#0d2a44;color:var(--blue);}
+.num-g{color:var(--green);font-weight:600;}.num-r{color:var(--red);font-weight:600;}.num-b{color:var(--blue);}
+.op-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(310px,1fr));gap:16px;margin-bottom:20px;}
+.op-card{background:var(--card2);border:1px solid var(--border);border-radius:10px;padding:18px;}
+.op-name{font-size:1rem;font-weight:700;margin-bottom:3px;}
+.op-trecho{font-size:.74rem;color:var(--sub);margin-bottom:10px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.op-stats{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:10px;}
+.op-stat{background:var(--card);border-radius:6px;padding:8px 10px;}
+.op-stat-label{font-size:.65rem;color:var(--sub);text-transform:uppercase;letter-spacing:.3px;}
+.op-stat-val{font-size:.88rem;font-weight:700;margin-top:2px;}
+.prog-bar{height:5px;background:#21262d;border-radius:3px;margin-top:8px;overflow:hidden;}
+.prog-fill{height:100%;border-radius:3px;}
+.alert-box{border-radius:8px;padding:11px 14px;margin-bottom:10px;font-size:.8rem;border-left:3px solid;}
+.alert-r{background:#2c1a1a;border-color:var(--red);color:#ffa0a0;}
+.alert-b{background:#0d1f3a;border-color:var(--blue);color:#80c0ff;}
+.alert-y{background:#2c2310;border-color:var(--yellow);color:#ffd080;}
+</style>
+</head><body>
+<header>
+  <div class="logo">PORTOEX — Análise de Terceiros</div>
+  <div class="header-dates">
+    <div class="header-date-item"><div class="header-date-label">Data da Operação</div><div class="header-date-val">28/07/2026 e 29/07/2026</div></div>
+    <div class="header-date-item"><div class="header-date-label">Data da Análise</div><div class="header-date-val">30/07/2026</div></div>
+  </div>
+</header>
+<div class="tabs" id="tabs">
+  <div class="tab active" onclick="switchTab(this.textContent)">28/07/2026</div>
+  <div class="tab" onclick="switchTab(this.textContent)">29/07/2026</div>
+  <div class="tab" onclick="switchTab(this.textContent)">Consolidado</div>
+</div>
+<div class="content" id="main-content"></div>
+<script>
+
+const DIAS={};
+DIAS["28/07/2026"]={ops:[
+  {nome:"Ricardo",tipo:"FRACIONADO",ctes:96,fat:30078.79,res:6044.96,mg:0.201,vei:"Carreta",ocup:0.7739,trecho:"Itajai-Sc X São Paulo-Sp",c_transf:5100.0,target:5100,dif:0.0,status:"DENTRO DO TARGET"},
+  {nome:"Renato",tipo:"FRACIONADO",ctes:69,fat:20248.54,res:10262.57,mg:0.5068,vei:"Carreta",ocup:0.53,trecho:"São Paulo-Sp X Itajai-Sc",c_transf:1850.0,target:1850,dif:0.0,status:"DENTRO DO TARGET"},
+  {nome:"Bruno",tipo:"FRACIONADO",ctes:25,fat:11718.98,res:2326.94,mg:0.1986,vei:"Truck",ocup:1.0011,trecho:"Navegantes-Sc X Guarulhos-Sp",c_transf:4400.0,target:4100,dif:300.0,status:"FORA DO TARGET"}
+]};
+DIAS["29/07/2026"]={ops:[
+  {nome:"Alexandre",tipo:"DEDICADO",ctes:2,fat:9226.09,res:1646.48,mg:0.1785,vei:"Carreta",ocup:0.5566,trecho:"Blumenau-Sc X Guarulhos-Sp",c_transf:5500.0,target:5500.0,dif:0.0,status:"DENTRO DO TARGET"},
+  {nome:"Fabiano",tipo:"DEDICADO",ctes:2,fat:2232.73,res:-258.04,mg:-0.1156,vei:"Van",ocup:0.4523,trecho:"Antonina-Pr X São Paulo-Sp",c_transf:1800.0,target:1800.0,dif:0.0,status:"DENTRO DO TARGET"},
+  {nome:"Wagner",tipo:"FECHADO",ctes:2,fat:7262.4,res:5000.27,mg:0.6885,vei:"Van",ocup:0.7076,trecho:"São Paulo-Sp X Itapeva-Sp",c_transf:900.0,target:1900,dif:-1000.0,status:"ABAIXO DO TARGET"}
+]};
+const DIAS_KEYS=["28/07/2026","29/07/2026"];
+let activeCharts=[];
+function dc(){activeCharts.forEach(c=>c.destroy());activeCharts=[];}
+function fmt(v){return'R$ '+v.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});}
+function pct(v){return(v*100).toFixed(2)+'%';}
+function fi(v){return Math.round(v).toLocaleString('pt-BR');}
+function sbadge(st){
+  if(st==='DENTRO DO TARGET')return'<span class="badge badge-g">'+st+'</span>';
+  if(st==='ABAIXO DO TARGET')return'<span class="badge badge-b">'+st+'</span>';
+  if(st==='FORA DO TARGET')return'<span class="badge badge-r">'+st+'</span>';
+  return'<span class="badge" style="background:#222;color:#aaa;">'+st+'</span>';
+}
+function mgcl(mg){return mg>=0.15?'g':mg>=0?'b':'r';}
+function mgnum(mg){return mg>=0.15?'num-g':mg>=0?'num-b':'num-r';}
+const COLORS=['#58a6ff','#3fb950','#ffa657','#bc8cff','#39d353','#d29922','#f85149'];
+function mkChart(id,type,data,opts){
+  const el=document.getElementById(id);if(!el)return;
+  activeCharts.push(new Chart(el,{type,data,options:{responsive:true,...opts}}));
+}
+function buildDay(dia){
+  const ops=DIAS[dia].ops;
+  const fat=ops.reduce((a,o)=>a+o.fat,0),res=ops.reduce((a,o)=>a+o.res,0),mg=fat>0?res/fat:0;
+  const ctes=ops.reduce((a,o)=>a+o.ctes,0);
+  const fora=ops.filter(o=>o.status==='FORA DO TARGET').length;
+  const dentro=ops.filter(o=>o.status==='DENTRO DO TARGET').length;
+  const abaixo=ops.filter(o=>o.status==='ABAIXO DO TARGET').length;
+  let alerts='';
+  ops.forEach(o=>{
+    if(o.status==='FORA DO TARGET')alerts+='<div class="alert-box alert-r">&#9888; <b>'+o.nome+'</b>: C.Transporte '+fmt(o.c_transf)+' &mdash; '+fmt(Math.abs(o.dif))+' ACIMA do target ('+fmt(o.target)+')</div>';
+    if(o.res<0)alerts+='<div class="alert-box alert-r">&#128308; <b>'+o.nome+'</b>: Resultado NEGATIVO &mdash; margem '+pct(o.mg)+'</div>';
+    if(o.ocup<0.5)alerts+='<div class="alert-box alert-y">&#128230; <b>'+o.nome+'</b>: Baixa ocupa&ccedil;&atilde;o &mdash; '+pct(o.ocup)+'</div>';
+  });
+  let cards='';
+  ops.forEach(o=>{
+    const bar=Math.min(o.ocup*100,100);
+    const bc=o.ocup>=0.8?'var(--green)':o.ocup>=0.5?'var(--yellow)':'var(--red)';
+    cards+='<div class="op-card">'
+      +'<div class="op-name">'+o.nome+' <span style="font-size:.7rem;font-weight:400;color:var(--sub);margin-left:5px;">'+o.tipo+'</span></div>'
+      +'<div class="op-trecho">'+o.trecho+'</div>'
+      +'<div style="margin-bottom:10px;">'+sbadge(o.status)+'</div>'
+      +'<div class="op-stats">'
+        +'<div class="op-stat"><div class="op-stat-label">Faturamento</div><div class="op-stat-val num-b" style="font-size:.8rem;">'+fmt(o.fat)+'</div></div>'
+        +'<div class="op-stat"><div class="op-stat-label">Resultado</div><div class="op-stat-val '+mgnum(o.res)+'" style="font-size:.8rem;">'+fmt(o.res)+'</div></div>'
+        +'<div class="op-stat"><div class="op-stat-label">Margem</div><div class="op-stat-val '+mgcl(o.mg)+'">'+pct(o.mg)+'</div></div>'
+        +'<div class="op-stat"><div class="op-stat-label">CTEs</div><div class="op-stat-val">'+o.ctes+'</div></div>'
+        +'<div class="op-stat"><div class="op-stat-label">Ve&iacute;culo</div><div class="op-stat-val" style="font-size:.8rem;">'+o.vei+'</div></div>'
+        +'<div class="op-stat"><div class="op-stat-label">C.Transp / Target</div><div class="op-stat-val" style="font-size:.75rem;">'+fmt(o.c_transf)+' <span style="color:var(--sub);">/ '+fmt(o.target)+'</span></div></div>'
+      +'</div>'
+      +'<div style="margin-top:8px;font-size:.7rem;color:var(--sub);">Ocupa&ccedil;&atilde;o: <b style="color:'+bc+';">'+pct(o.ocup)+'</b></div>'
+      +'<div class="prog-bar"><div class="prog-fill" style="width:'+bar+'%;background:'+bc+';"></div></div>'
+      +'</div>';
+  });
+  let trows='';
+  ops.forEach(o=>{
+    const ds=o.dif===0?'<span style="color:var(--sub);">&mdash;</span>':o.dif>0?'<span class="num-r">+R$'+fi(o.dif)+'</span>':'<span class="num-g">-R$'+fi(Math.abs(o.dif))+'</span>';
+    trows+='<tr><td><b>'+o.nome+'</b></td><td class="num-b">'+fmt(o.fat)+'</td><td class="'+mgnum(o.res)+'">'+fmt(o.res)+'</td><td class="'+mgcl(o.mg)+'">'+pct(o.mg)+'</td><td>'+o.ctes+'</td><td>'+o.vei+'</td><td>'+pct(o.ocup)+'</td><td style="font-size:.78rem;">'+fmt(o.c_transf)+' / '+fmt(o.target)+'</td><td>'+ds+'</td><td>'+sbadge(o.status)+'</td></tr>';
+  });
+  const k=dia.replace(/[/]/g,'');
+  document.getElementById('main-content').innerHTML=
+    '<div class="kpi-row">'
+      +'<div class="kpi"><div class="kpi-label">Faturamento</div><div class="kpi-val b" style="font-size:1.1rem;">'+fmt(fat)+'</div></div>'
+      +'<div class="kpi"><div class="kpi-label">Resultado</div><div class="kpi-val '+mgcl(mg)+'" style="font-size:1.1rem;">'+fmt(res)+'</div></div>'
+      +'<div class="kpi"><div class="kpi-label">Margem</div><div class="kpi-val '+mgcl(mg)+'">'+pct(mg)+'</div></div>'
+      +'<div class="kpi"><div class="kpi-label">Viagens</div><div class="kpi-val b">'+ops.length+'</div></div>'
+      +'<div class="kpi"><div class="kpi-label">CTEs</div><div class="kpi-val b">'+ctes+'</div></div>'
+      +'<div class="kpi"><div class="kpi-label">Dentro Target</div><div class="kpi-val g">'+dentro+'</div></div>'
+      +'<div class="kpi"><div class="kpi-label">Abaixo Target</div><div class="kpi-val b">'+abaixo+'</div></div>'
+      +'<div class="kpi"><div class="kpi-label">Fora Target</div><div class="kpi-val '+(fora>0?'r':'g')+'">'+fora+'</div></div>'
+    +'</div>'
+    +(alerts?'<div style="margin-bottom:20px;">'+alerts+'</div>':'')
+    +'<div class="op-grid">'+cards+'</div>'
+    +'<div class="charts-row">'
+      +'<div class="chart-box"><div class="chart-title">Faturamento vs Resultado</div><canvas id="cf-'+k+'"></canvas></div>'
+      +'<div class="chart-box"><div class="chart-title">Margem por Operador</div><canvas id="cm-'+k+'"></canvas></div>'
+      +'<div class="chart-box"><div class="chart-title">C.Transporte vs Target</div><canvas id="ct-'+k+'"></canvas></div>'
+    +'</div>'
+    +'<div class="section"><div class="sec-title">Detalhamento</div>'
+    +'<table><tr><th>Operador</th><th>Faturamento</th><th>Resultado</th><th>Margem</th><th>CTEs</th><th>Ve&iacute;culo</th><th>Ocupa&ccedil;&atilde;o</th><th>C.Transf / Target</th><th>Dif</th><th>Status</th></tr>'+trows+'</table></div>';
+  const co={responsive:true,plugins:{legend:{labels:{color:'#8b949e',font:{size:11}}}},scales:{x:{ticks:{color:'#8b949e'}},y:{ticks:{color:'#8b949e',callback:v=>'R$'+v.toLocaleString('pt-BR')}}}};
+  const names=ops.map(o=>o.nome);
+  mkChart('cf-'+k,'bar',{labels:names,datasets:[{label:'Faturamento',data:ops.map(o=>o.fat),backgroundColor:'rgba(88,166,255,0.7)',borderRadius:4},{label:'Resultado',data:ops.map(o=>o.res),backgroundColor:ops.map(o=>o.res>=0?'rgba(63,185,80,0.7)':'rgba(248,81,73,0.7)'),borderRadius:4}]},co);
+  mkChart('cm-'+k,'bar',{labels:names,datasets:[{label:'Margem %',data:ops.map(o=>+(o.mg*100).toFixed(2)),backgroundColor:ops.map(o=>o.mg>=0.15?'rgba(63,185,80,0.7)':o.mg>=0?'rgba(88,166,255,0.7)':'rgba(248,81,73,0.7)'),borderRadius:4}]},{responsive:true,plugins:{legend:{labels:{color:'#8b949e',font:{size:11}}}},scales:{x:{ticks:{color:'#8b949e'}},y:{ticks:{color:'#8b949e',callback:v=>v+'%'}}}});
+  mkChart('ct-'+k,'bar',{labels:names,datasets:[{label:'C.Transporte',data:ops.map(o=>o.c_transf),backgroundColor:'rgba(88,166,255,0.7)',borderRadius:4},{label:'Target',data:ops.map(o=>o.target),backgroundColor:'rgba(210,153,34,0.7)',borderRadius:4}]},co);
+}
+function buildConsolidado(){
+  const allOps=[];DIAS_KEYS.forEach(dia=>DIAS[dia].ops.forEach(o=>allOps.push(Object.assign({},o,{dia}))));
+  const fat=allOps.reduce((a,o)=>a+o.fat,0),res=allOps.reduce((a,o)=>a+o.res,0),mg=fat>0?res/fat:0;
+  const ctes=allOps.reduce((a,o)=>a+o.ctes,0);
+  const fora=allOps.filter(o=>o.status==='FORA DO TARGET').length;
+  const dentro=allOps.filter(o=>o.status==='DENTRO DO TARGET').length;
+  const abaixo=allOps.filter(o=>o.status==='ABAIXO DO TARGET').length;
+  let drows='';
+  DIAS_KEYS.forEach(dia=>{
+    const dops=DIAS[dia].ops,df=dops.reduce((a,o)=>a+o.fat,0),dr=dops.reduce((a,o)=>a+o.res,0),dm=df>0?dr/df:0;
+    drows+='<tr><td><b>'+dia+'</b></td><td>'+dops.length+'</td><td>'+dops.reduce((a,o)=>a+o.ctes,0)+'</td><td class="num-b">'+fmt(df)+'</td><td class="'+mgnum(dr)+'">'+fmt(dr)+'</td><td class="'+mgcl(dm)+'">'+pct(dm)+'</td></tr>';
+  });
+  let arows='';
+  allOps.forEach(o=>{
+    const ds=o.dif===0?'<span style="color:var(--sub);">&mdash;</span>':o.dif>0?'<span class="num-r">+R$'+fi(o.dif)+'</span>':'<span class="num-g">-R$'+fi(Math.abs(o.dif))+'</span>';
+    arows+='<tr><td style="color:var(--sub);font-size:.73rem;">'+o.dia+'</td><td><b>'+o.nome+'</b></td><td class="num-b">'+fmt(o.fat)+'</td><td class="'+mgnum(o.res)+'">'+fmt(o.res)+'</td><td class="'+mgcl(o.mg)+'">'+pct(o.mg)+'</td><td>'+o.ctes+'</td><td>'+o.vei+'</td><td>'+pct(o.ocup)+'</td><td style="font-size:.76rem;">'+fmt(o.c_transf)+' / '+fmt(o.target)+'</td><td>'+ds+'</td><td>'+sbadge(o.status)+'</td></tr>';
+  });
+  document.getElementById('main-content').innerHTML=
+    '<div class="kpi-row">'
+      +'<div class="kpi"><div class="kpi-label">Faturamento Consolidado</div><div class="kpi-val b" style="font-size:1.05rem;">'+fmt(fat)+'</div></div>'
+      +'<div class="kpi"><div class="kpi-label">Resultado Consolidado</div><div class="kpi-val '+mgcl(mg)+'" style="font-size:1.05rem;">'+fmt(res)+'</div></div>'
+      +'<div class="kpi"><div class="kpi-label">Margem</div><div class="kpi-val '+mgcl(mg)+'">'+pct(mg)+'</div></div>'
+      +'<div class="kpi"><div class="kpi-label">Viagens</div><div class="kpi-val b">'+allOps.length+'</div></div>'
+      +'<div class="kpi"><div class="kpi-label">CTEs</div><div class="kpi-val b">'+ctes+'</div></div>'
+      +'<div class="kpi"><div class="kpi-label">Dentro Target</div><div class="kpi-val g">'+dentro+'</div></div>'
+      +'<div class="kpi"><div class="kpi-label">Abaixo Target</div><div class="kpi-val b">'+abaixo+'</div></div>'
+      +'<div class="kpi"><div class="kpi-label">Fora Target</div><div class="kpi-val '+(fora>0?'r':'g')+'">'+fora+'</div></div>'
+    +'</div>'
+    +'<div class="charts-row">'
+      +'<div class="chart-box"><div class="chart-title">Faturamento vs Resultado por Dia</div><canvas id="c-cd"></canvas></div>'
+      +'<div class="chart-box"><div class="chart-title">Faturamento por Operador</div><canvas id="c-cf"></canvas></div>'
+      +'<div class="chart-box"><div class="chart-title">Resultado por Operador</div><canvas id="c-cr"></canvas></div>'
+    +'</div>'
+    +'<div class="section" style="margin-bottom:20px;"><div class="sec-title">Resumo por Dia</div>'
+    +'<table><tr><th>Data</th><th>Viagens</th><th>CTEs</th><th>Faturamento</th><th>Resultado</th><th>Margem</th></tr>'+drows+'</table></div>'
+    +'<div class="section"><div class="sec-title">Todas as Viagens</div>'
+    +'<table><tr><th>Data</th><th>Operador</th><th>Faturamento</th><th>Resultado</th><th>Margem</th><th>CTEs</th><th>Ve&iacute;culo</th><th>Ocupa&ccedil;&atilde;o</th><th>C.Transf / Target</th><th>Dif</th><th>Status</th></tr>'+arows+'</table></div>';
+  const co={responsive:true,plugins:{legend:{labels:{color:'#8b949e',font:{size:11}}}},scales:{x:{ticks:{color:'#8b949e'}},y:{ticks:{color:'#8b949e',callback:v=>'R$'+v.toLocaleString('pt-BR')}}}};
+  const dats=DIAS_KEYS.map(dia=>({fat:DIAS[dia].ops.reduce((a,o)=>a+o.fat,0),res:DIAS[dia].ops.reduce((a,o)=>a+o.res,0),label:dia}));
+  mkChart('c-cd','bar',{labels:dats.map(d=>d.label),datasets:[{label:'Faturamento',data:dats.map(d=>d.fat),backgroundColor:'rgba(88,166,255,0.7)',borderRadius:4},{label:'Resultado',data:dats.map(d=>d.res),backgroundColor:'rgba(63,185,80,0.7)',borderRadius:4}]},co);
+  mkChart('c-cf','doughnut',{labels:allOps.map(o=>o.nome+' ('+o.dia.substring(0,5)+')'),datasets:[{data:allOps.map(o=>o.fat),backgroundColor:allOps.map((_,i)=>COLORS[i%COLORS.length]),borderWidth:2,borderColor:'#161b22'}]},{responsive:true,plugins:{legend:{labels:{color:'#8b949e',font:{size:10}}}}});
+  mkChart('c-cr','bar',{labels:allOps.map(o=>o.nome),datasets:[{label:'Resultado',data:allOps.map(o=>o.res),backgroundColor:allOps.map(o=>o.res>=0?'rgba(63,185,80,0.7)':'rgba(248,81,73,0.7)'),borderRadius:4}]},co);
+}
+function switchTab(name){
+  dc();
+  document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active',t.textContent.trim()===name.trim()));
+  if(name.trim()==='Consolidado')buildConsolidado();else buildDay(name.trim());
+}
+buildDay(DIAS_KEYS[0]);
+
+</script></body></html>
