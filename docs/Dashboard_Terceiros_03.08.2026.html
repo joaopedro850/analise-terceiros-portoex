@@ -116,6 +116,7 @@ tr:hover td{background:rgba(255,255,255,.02);}
   <div class="tab active" onclick="switchTab(this.textContent)">30/07/2026</div>
   <div class="tab" onclick="switchTab(this.textContent)">31/07/2026</div>
   <div class="tab" onclick="switchTab(this.textContent)">Consolidado</div>
+  <div class="tab" onclick="switchTab(this.textContent)">Consolidado Geral</div>
 </div>
 <div class="content" id="main-content"></div>
 <script>
@@ -474,8 +475,107 @@ function buildConsolidado(){
 function switchTab(name){
   dc();
   document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active',t.textContent.trim()===name.trim()));
-  if(name.trim()==='Consolidado')buildConsolidado();else buildDay(name.trim());
+  if(name.trim()==='Consolidado')buildConsolidado();else if(name.trim()==='Consolidado Geral')buildConsolidadoGeral();else buildDay(name.trim());
 }
 buildDay(DIAS_KEYS[0]);
+
+const HIST=[
+{nome:"Carlos",dia:"30/07/2026",tipo:"FRACIONADO",vei:"Truck",trecho:"Navegantes-Sc X Guarulhos-Sp",fat:10750.35,res:-14.73,mg:-0.0014,ocup:0.9181,ctes:29,c_transf:4000.0,target:4100,dif:-100.0,status:"ABAIXO DO TARGET"},
+{nome:"Adriano",dia:"30/07/2026",tipo:"FRACIONADO",vei:"Truck",trecho:"Navegantes-Sc X São Paulo-Sp",fat:11734.1,res:223.88,mg:0.0191,ocup:0.9717,ctes:38,c_transf:4100.0,target:4100.0,dif:0.0,status:"DENTRO DO TARGET"},
+{nome:"Renato",dia:"30/07/2026",tipo:"FRACIONADO",vei:"Carreta",trecho:"São Paulo-Sp X Itajai-Sc",fat:6265.39,res:-92.97,mg:-0.0148,ocup:0.1912,ctes:24,c_transf:1850.0,target:1850,dif:0.0,status:"DENTRO DO TARGET"},
+{nome:"Ricardo",dia:"30/07/2026",tipo:"FRACIONADO",vei:"Carreta",trecho:"Itajai-Sc X São Paulo-Sp",fat:28480.37,res:5750.29,mg:0.2019,ocup:0.6733,ctes:76,c_transf:5100.0,target:5100,dif:0.0,status:"DENTRO DO TARGET"},
+{nome:"Rafael",dia:"31/07/2026",tipo:"FECHADO",vei:"Van",trecho:"Itajai-Sc X Chapeco-Sc",fat:2791.69,res:-789.98,mg:-0.283,ocup:1.0,ctes:6,c_transf:2800.0,target:2800.0,dif:0.0,status:"DENTRO DO TARGET"},
+{nome:"Jonathan",dia:"31/07/2026",tipo:"FECHADO",vei:"Van",trecho:"Londrina-Pr X Cascavel-Pr",fat:2491.0,res:-8.6,mg:-0.0035,ocup:1.0,ctes:10,c_transf:1800.0,target:1800.0,dif:0.0,status:"DENTRO DO TARGET"},
+{nome:"Kelvyn",dia:"31/07/2026",tipo:"FECHADO",vei:"Van",trecho:"São Paulo-Sp X Itapeva-Sp",fat:7262.4,res:4235.28,mg:0.5832,ocup:0.7076,ctes:2,c_transf:900.0,target:1900,dif:-1000.0,status:"ABAIXO DO TARGET"},
+{nome:"Fabiano",dia:"31/07/2026",tipo:"FECHADO",vei:"Van",trecho:"Curitiba-Pr X Guarulhos-Sp",fat:4966.43,res:3970.08,mg:0.7994,ocup:1.0,ctes:2,c_transf:2100.0,target:1800.0,dif:300.0,status:"FORA DO TARGET"},
+{nome:"Vinicius",dia:"31/07/2026",tipo:"FECHADO",vei:"3/4",trecho:"Itajai-Sc X Sao Goncalo Do Rio Abaixo-Mg",fat:12688.02,res:2216.82,mg:0.1747,ocup:0.5361,ctes:2,c_transf:6600.0,target:6600.0,dif:0.0,status:"DENTRO DO TARGET"},
+{nome:"Nuylan",dia:"31/07/2026",tipo:"FRACIONADO",vei:"Truck",trecho:"Cotia-Sp X Itajai-Sc",fat:8283.53,res:512.26,mg:0.0618,ocup:0.2736,ctes:3,c_transf:2500.0,target:2500.0,dif:0.0,status:"DENTRO DO TARGET"},
+{nome:"Renato",dia:"31/07/2026",tipo:"FECHADO",vei:"Carreta",trecho:"Itajai-Sc X Guarulhos-Sp",fat:8843.99,res:922.24,mg:0.1043,ocup:1.0,ctes:2,c_transf:5200.0,target:5200,dif:0.0,status:"DENTRO DO TARGET"}
+];
+
+function buildConsolidadoGeral(){
+  const el=document.getElementById('main-content');
+  if(!HIST||!HIST.length){el.innerHTML='<div class="card"><p>Sem dados históricos nos últimos 15 dias.</p></div>';return;}
+  const tot=HIST.reduce((a,o)=>({fat:a.fat+o.fat,res:a.res+o.res,ctes:a.ctes+o.ctes}),{fat:0,res:0,ctes:0});
+  const mg=tot.fat?tot.res/tot.fat:0;
+  const dentro=HIST.filter(o=>o.status==='DENTRO DO TARGET').length;
+  const fora=HIST.filter(o=>o.status==='FORA DO TARGET').length;
+  const abaixo=HIST.filter(o=>o.status==='ABAIXO DO TARGET').length;
+  const pctTgt=HIST.length?(dentro/HIST.length*100).toFixed(0)+'%':'–';
+  const kpis='<div class="kpi-row">'
+    +'<div class="kpi"><div class="kpi-label">Faturamento</div><div class="kpi-val">'+fmt(tot.fat)+'</div></div>'
+    +'<div class="kpi"><div class="kpi-label">Resultado</div><div class="kpi-val '+mgcl(mg)+'">'+fmt(tot.res)+'</div></div>'
+    +'<div class="kpi"><div class="kpi-label">Margem</div><div class="kpi-val '+mgcl(mg)+'">'+pct(mg)+'</div></div>'
+    +'<div class="kpi"><div class="kpi-label">Operações</div><div class="kpi-val">'+HIST.length+'</div></div>'
+    +'<div class="kpi"><div class="kpi-label">CTEs</div><div class="kpi-val">'+tot.ctes+'</div></div>'
+    +'<div class="kpi"><div class="kpi-label">% no Target</div><div class="kpi-val">'+pctTgt+'</div></div>'
+    +'</div>';
+  const pills='<div style="display:flex;gap:10px;flex-wrap:wrap;margin:0 0 18px 0;">'
+    +'<span style="background:var(--green);color:#fff;padding:4px 14px;border-radius:20px;font-size:.8rem;font-weight:600;">✓ DENTRO: '+dentro+'</span>'
+    +'<span style="background:#e84040;color:#fff;padding:4px 14px;border-radius:20px;font-size:.8rem;font-weight:600;">✗ FORA: '+fora+'</span>'
+    +'<span style="background:var(--orange);color:#fff;padding:4px 14px;border-radius:20px;font-size:.8rem;font-weight:600;">↓ ABAIXO: '+abaixo+'</span>'
+    +'</div>';
+  // Agrupar por dia
+  const dias=[...new Set(HIST.map(o=>o.dia))].sort((a,b)=>{const p=s=>s.split('/').reverse().join('');return p(a)<p(b)?-1:1;});
+  const dFat=dias.map(d=>Math.round(HIST.filter(o=>o.dia===d).reduce((a,o)=>a+o.fat,0)*100)/100);
+  const dRes=dias.map(d=>Math.round(HIST.filter(o=>o.dia===d).reduce((a,o)=>a+o.res,0)*100)/100);
+  let trows='';
+  dias.forEach(dia=>{
+    const ops=HIST.filter(o=>o.dia===dia);
+    const df=ops.reduce((a,o)=>({fat:a.fat+o.fat,res:a.res+o.res}),{fat:0,res:0});
+    const dm=df.fat?df.res/df.fat:0;
+    trows+='<tr style="background:var(--bg2);"><td colspan="2"><b>'+dia+'</b></td><td colspan="2"></td>'
+      +'<td class="num-b">'+fmt(df.fat)+'</td>'
+      +'<td class="'+mgnum(dm)+'">'+fmt(df.res)+'</td>'
+      +'<td class="'+mgcl(dm)+'">'+pct(dm)+'</td>'
+      +'<td colspan="3"></td></tr>';
+    ops.forEach(o=>{
+      const sc=o.status==='DENTRO DO TARGET'?'status-ok':o.status==='FORA DO TARGET'?'status-bad':'status-warn';
+      trows+='<tr>'
+        +'<td>'+o.nome+'</td>'
+        +'<td><span class="badge badge-'+o.tipo.toLowerCase()+'">'+o.tipo+'</span></td>'
+        +'<td>'+o.vei+'</td><td>'+o.ctes+'</td>'
+        +'<td class="num-b">'+fmt(o.fat)+'</td>'
+        +'<td class="'+mgnum(o.mg)+'">'+fmt(o.res)+'</td>'
+        +'<td class="'+mgcl(o.mg)+'">'+pct(o.mg)+'</td>'
+        +'<td>'+fmt(o.c_transf)+' / '+fmt(o.target)+'</td>'
+        +'<td class="'+mgnum(o.dif)+'">'+fmt(o.dif)+'</td>'
+        +'<td><span class="'+sc+'">'+o.status+'</span></td>'
+        +'</tr>';
+    });
+  });
+  const tabela='<div style="overflow-x:auto;"><table><tr>'
+    +'<th>Operador</th><th>Tipo</th><th>Veículo</th><th>CTEs</th>'
+    +'<th>Faturamento</th><th>Resultado</th><th>Margem</th>'
+    +'<th>C.Transf / Target</th><th>Dif</th><th>Status</th>'
+    +'</tr>'+trows+'</table></div>';
+  const chartId='ch_geral_'+Date.now();
+  el.innerHTML='<div class="card"><h2>Consolidado Geral — Últimos 15 dias</h2>'
+    +kpis+pills
+    +'<canvas id="'+chartId+'" height="70" style="margin-bottom:24px;"></canvas>'
+    +tabela+'</div>';
+  const GC=getGC();
+  new Chart(document.getElementById(chartId),{
+    type:'bar',
+    data:{
+      labels:dias,
+      datasets:[
+        {label:'Faturamento',data:dFat,backgroundColor:'rgba(68,114,196,.55)',yAxisID:'y'},
+        {label:'Resultado',data:dRes,backgroundColor:dRes.map(v=>v>=0?'rgba(80,200,80,.75)':'rgba(232,64,64,.75)'),yAxisID:'y'}
+      ]
+    },
+    options:{
+      responsive:true,
+      plugins:{
+        legend:{labels:{color:GC.color,font:{size:10}}},
+        tooltip:{callbacks:{label:function(c){return c.dataset.label+': R$ '+c.parsed.y.toLocaleString('pt-BR',{minimumFractionDigits:2});}}}
+      },
+      scales:{
+        y:{ticks:{color:GC.color,callback:function(v){return 'R$ '+v.toLocaleString('pt-BR');}},grid:{color:GC.grid}},
+        x:{ticks:{color:GC.color,font:{size:9}},grid:{color:GC.grid}}
+      }
+    }
+  });
+}
 
 </script></body></html>
