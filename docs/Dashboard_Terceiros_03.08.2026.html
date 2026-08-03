@@ -479,19 +479,39 @@ function switchTab(name){
 }
 buildDay(DIAS_KEYS[0]);
 
-const HIST=[
+const HIST_MES=[
 
 ];
+const QUINZENAL_DIAS=new Set([]);
+let HIST_ATIVO=HIST_MES.filter(h=>QUINZENAL_DIAS.has(h.dia));
 
-function buildConsolidadoGeral(){
-  const el=document.getElementById('main-content');
-  if(!HIST||!HIST.length){el.innerHTML='<div class="card"><p>Sem dados históricos nos últimos 15 dias.</p></div>';return;}
+// ── Consolidado Geral — estado dos filtros de data ───────────────────────────
+let _geralDiasSel=new Set(QUINZENAL_DIAS); // padrão: quinzena atual
+let _geralChart=null;
+
+function _geralDias(){
+  return [...new Set(HIST_MES.map(o=>o.dia))].sort((a,b)=>{
+    const p=s=>s.split('/').reverse().join('');return p(a)<p(b)?-1:1;
+  });
+}
+
+function _geralAtivo(){
+  return HIST_MES.filter(o=>_geralDiasSel.has(o.dia));
+}
+
+function _geralRender(){
+  const HIST=_geralAtivo();
+  const el2=document.getElementById('cg-body');
+  if(!el2) return;
+  if(!HIST.length){el2.innerHTML='<p style="color:var(--sub);text-align:center;padding:24px;">Nenhuma operação para os dias selecionados.</p>';return;}
+
   const tot=HIST.reduce((a,o)=>({fat:a.fat+o.fat,res:a.res+o.res,ctes:a.ctes+o.ctes}),{fat:0,res:0,ctes:0});
   const mg=tot.fat?tot.res/tot.fat:0;
   const dentro=HIST.filter(o=>o.status==='DENTRO DO TARGET').length;
-  const fora=HIST.filter(o=>o.status==='FORA DO TARGET').length;
+  const fora  =HIST.filter(o=>o.status==='FORA DO TARGET').length;
   const abaixo=HIST.filter(o=>o.status==='ABAIXO DO TARGET').length;
   const pctTgt=HIST.length?(dentro/HIST.length*100).toFixed(0)+'%':'–';
+
   const kpis='<div class="kpi-row">'
     +'<div class="kpi"><div class="kpi-label">Faturamento</div><div class="kpi-val">'+fmt(tot.fat)+'</div></div>'
     +'<div class="kpi"><div class="kpi-label">Resultado</div><div class="kpi-val '+mgcl(mg)+'">'+fmt(tot.res)+'</div></div>'
@@ -500,12 +520,14 @@ function buildConsolidadoGeral(){
     +'<div class="kpi"><div class="kpi-label">CTEs</div><div class="kpi-val">'+tot.ctes+'</div></div>'
     +'<div class="kpi"><div class="kpi-label">% no Target</div><div class="kpi-val">'+pctTgt+'</div></div>'
     +'</div>';
+
   const pills='<div style="display:flex;gap:10px;flex-wrap:wrap;margin:0 0 18px 0;">'
     +'<span style="background:var(--green);color:#fff;padding:4px 14px;border-radius:20px;font-size:.8rem;font-weight:600;">✓ DENTRO: '+dentro+'</span>'
     +'<span style="background:#e84040;color:#fff;padding:4px 14px;border-radius:20px;font-size:.8rem;font-weight:600;">✗ FORA: '+fora+'</span>'
     +'<span style="background:var(--orange);color:#fff;padding:4px 14px;border-radius:20px;font-size:.8rem;font-weight:600;">↓ ABAIXO: '+abaixo+'</span>'
     +'</div>';
-  // Melhor e pior operação (por resultado)
+
+  // Melhor e pior (por resultado)
   const melhor=HIST.reduce((a,b)=>b.res>a.res?b:a,HIST[0]);
   const pior  =HIST.reduce((a,b)=>b.res<a.res?b:a,HIST[0]);
   function destCard(op,tipo){
@@ -513,22 +535,22 @@ function buildConsolidadoGeral(){
     const cor=isMelhor?'var(--green)':'#e84040';
     const icone=isMelhor?'🏆':'⚠️';
     const label=isMelhor?'Melhor Operação':'Pior Operação';
-    return '<div style="flex:1;min-width:260px;border:2px solid '+cor+';border-radius:10px;padding:16px 20px;background:var(--card);">'
-      +'<div style="font-size:.72rem;font-weight:700;color:'+cor+';letter-spacing:.08em;margin-bottom:6px;">'+icone+' '+label.toUpperCase()+'</div>'
-      +'<div style="font-size:1.15rem;font-weight:700;color:var(--text);margin-bottom:2px;">'+op.nome+'</div>'
-      +'<div style="font-size:.8rem;color:var(--sub);margin-bottom:10px;">'+op.dia+' · '+op.tipo+' · '+op.vei+'</div>'
-      +'<div style="font-size:.78rem;color:var(--sub);margin-bottom:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" title="'+op.trecho+'">📍 '+op.trecho+'</div>'
-      +'<div style="display:flex;gap:18px;flex-wrap:wrap;margin-top:8px;">'
-        +'<div><div style="font-size:.65rem;color:var(--sub);">Faturamento</div><div style="font-weight:600;font-size:.95rem;">'+fmt(op.fat)+'</div></div>'
-        +'<div><div style="font-size:.65rem;color:var(--sub);">Resultado</div><div style="font-weight:700;font-size:.95rem;color:'+cor+';">'+fmt(op.res)+'</div></div>'
-        +'<div><div style="font-size:.65rem;color:var(--sub);">Margem</div><div style="font-weight:600;font-size:.95rem;color:'+cor+';">'+pct(op.mg)+'</div></div>'
-        +'<div><div style="font-size:.65rem;color:var(--sub);">C.Transf</div><div style="font-weight:600;font-size:.95rem;">'+fmt(op.c_transf)+'</div></div>'
-      +'</div>'
-    +'</div>';
+    return '<div style="flex:1;min-width:240px;border:2px solid '+cor+';border-radius:10px;padding:14px 18px;background:var(--card);">'
+      +'<div style="font-size:.7rem;font-weight:700;color:'+cor+';letter-spacing:.08em;margin-bottom:5px;">'+icone+' '+label.toUpperCase()+'</div>'
+      +'<div style="font-size:1.05rem;font-weight:700;color:var(--text);margin-bottom:2px;">'+op.nome+'</div>'
+      +'<div style="font-size:.78rem;color:var(--sub);margin-bottom:8px;">'+op.dia+' · '+op.tipo+' · '+op.vei+'</div>'
+      +'<div style="font-size:.75rem;color:var(--sub);margin-bottom:8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" title="'+op.trecho+'">📍 '+op.trecho+'</div>'
+      +'<div style="display:flex;gap:14px;flex-wrap:wrap;">'
+        +'<div><div style="font-size:.62rem;color:var(--sub);">Faturamento</div><div style="font-weight:600;font-size:.9rem;">'+fmt(op.fat)+'</div></div>'
+        +'<div><div style="font-size:.62rem;color:var(--sub);">Resultado</div><div style="font-weight:700;font-size:.9rem;color:'+cor+';">'+fmt(op.res)+'</div></div>'
+        +'<div><div style="font-size:.62rem;color:var(--sub);">Margem</div><div style="font-weight:600;font-size:.9rem;color:'+cor+';">'+pct(op.mg)+'</div></div>'
+        +'<div><div style="font-size:.62rem;color:var(--sub);">C.Transf</div><div style="font-weight:600;font-size:.9rem;">'+fmt(op.c_transf)+'</div></div>'
+      +'</div></div>';
   }
-  const destaques='<div style="display:flex;gap:16px;flex-wrap:wrap;margin:0 0 24px 0;">'
+  const destaques='<div style="display:flex;gap:14px;flex-wrap:wrap;margin:0 0 22px 0;">'
     +destCard(melhor,'melhor')+destCard(pior,'pior')+'</div>';
-  // Agrupar por dia
+
+  // Tabela agrupada por dia
   const dias=[...new Set(HIST.map(o=>o.dia))].sort((a,b)=>{const p=s=>s.split('/').reverse().join('');return p(a)<p(b)?-1:1;});
   const dFat=dias.map(d=>Math.round(HIST.filter(o=>o.dia===d).reduce((a,o)=>a+o.fat,0)*100)/100);
   const dRes=dias.map(d=>Math.round(HIST.filter(o=>o.dia===d).reduce((a,o)=>a+o.res,0)*100)/100);
@@ -537,15 +559,15 @@ function buildConsolidadoGeral(){
     const ops=HIST.filter(o=>o.dia===dia);
     const df=ops.reduce((a,o)=>({fat:a.fat+o.fat,res:a.res+o.res}),{fat:0,res:0});
     const dm=df.fat?df.res/df.fat:0;
-    trows+='<tr style="background:var(--bg2);"><td colspan="2"><b>'+dia+'</b></td><td colspan="2"></td>'
+    trows+='<tr style="background:var(--bg2);font-weight:600;">'
+      +'<td colspan="2"><b>'+dia+'</b></td><td colspan="2"></td>'
       +'<td class="num-b">'+fmt(df.fat)+'</td>'
       +'<td class="'+mgnum(dm)+'">'+fmt(df.res)+'</td>'
       +'<td class="'+mgcl(dm)+'">'+pct(dm)+'</td>'
       +'<td colspan="3"></td></tr>';
     ops.forEach(o=>{
       const sc=o.status==='DENTRO DO TARGET'?'status-ok':o.status==='FORA DO TARGET'?'status-bad':'status-warn';
-      trows+='<tr>'
-        +'<td>'+o.nome+'</td>'
+      trows+='<tr><td>'+o.nome+'</td>'
         +'<td><span class="badge badge-'+o.tipo.toLowerCase()+'">'+o.tipo+'</span></td>'
         +'<td>'+o.vei+'</td><td>'+o.ctes+'</td>'
         +'<td class="num-b">'+fmt(o.fat)+'</td>'
@@ -553,8 +575,7 @@ function buildConsolidadoGeral(){
         +'<td class="'+mgcl(o.mg)+'">'+pct(o.mg)+'</td>'
         +'<td>'+fmt(o.c_transf)+' / '+fmt(o.target)+'</td>'
         +'<td class="'+mgnum(o.dif)+'">'+fmt(o.dif)+'</td>'
-        +'<td><span class="'+sc+'">'+o.status+'</span></td>'
-        +'</tr>';
+        +'<td><span class="'+sc+'">'+o.status+'</span></td></tr>';
     });
   });
   const tabela='<div style="overflow-x:auto;"><table><tr>'
@@ -562,33 +583,67 @@ function buildConsolidadoGeral(){
     +'<th>Faturamento</th><th>Resultado</th><th>Margem</th>'
     +'<th>C.Transf / Target</th><th>Dif</th><th>Status</th>'
     +'</tr>'+trows+'</table></div>';
-  const chartId='ch_geral_'+Date.now();
-  el.innerHTML='<div class="card"><h2>Consolidado Geral — Quinzenal</h2>'
-    +kpis+pills+destaques
-    +'<canvas id="'+chartId+'" height="70" style="margin-bottom:24px;"></canvas>'
-    +tabela+'</div>';
+
+  const chartId='cg-chart';
+  el2.innerHTML=kpis+pills+destaques
+    +'<canvas id="'+chartId+'" height="70" style="margin-bottom:22px;"></canvas>'
+    +tabela;
+
+  if(_geralChart){try{_geralChart.destroy();}catch(e){}}
   const GC=getGC();
-  new Chart(document.getElementById(chartId),{
+  _geralChart=new Chart(document.getElementById(chartId),{
     type:'bar',
     data:{
       labels:dias,
       datasets:[
         {label:'Faturamento',data:dFat,backgroundColor:'rgba(68,114,196,.55)',yAxisID:'y'},
-        {label:'Resultado',data:dRes,backgroundColor:dRes.map(v=>v>=0?'rgba(80,200,80,.75)':'rgba(232,64,64,.75)'),yAxisID:'y'}
+        {label:'Resultado',  data:dRes,backgroundColor:dRes.map(v=>v>=0?'rgba(80,200,80,.75)':'rgba(232,64,64,.75)'),yAxisID:'y'}
       ]
     },
     options:{
       responsive:true,
-      plugins:{
-        legend:{labels:{color:GC.color,font:{size:10}}},
-        tooltip:{callbacks:{label:function(c){return c.dataset.label+': R$ '+c.parsed.y.toLocaleString('pt-BR',{minimumFractionDigits:2});}}}
-      },
+      plugins:{legend:{labels:{color:GC.color,font:{size:10}}},
+        tooltip:{callbacks:{label:function(c){return c.dataset.label+': R$ '+c.parsed.y.toLocaleString('pt-BR',{minimumFractionDigits:2});}}}},
       scales:{
         y:{ticks:{color:GC.color,callback:function(v){return 'R$ '+v.toLocaleString('pt-BR');}},grid:{color:GC.grid}},
         x:{ticks:{color:GC.color,font:{size:9}},grid:{color:GC.grid}}
       }
     }
   });
+}
+
+function buildConsolidadoGeral(){
+  const el=document.getElementById('main-content');
+  if(!HIST_MES||!HIST_MES.length){
+    el.innerHTML='<div class="card"><p>Sem dados históricos no mês atual.</p></div>';return;
+  }
+
+  // Botões de filtro por data
+  const todasDias=_geralDias();
+  const btnTodos='<button onclick="(function(){_geralDiasSel=new Set('+JSON.stringify(todasDias)+');document.querySelectorAll(\'.cg-dia-btn\').forEach(b=>b.classList.add(\'cg-btn-on\'));_geralRender();})()" '
+    +'style="padding:5px 12px;border-radius:6px;font-size:.78rem;font-weight:600;cursor:pointer;border:1px solid var(--orange);color:var(--orange);background:transparent;margin-right:4px;">Mês todo</button>';
+  const btnQuinzenal='<button onclick="(function(){_geralDiasSel=new Set(QUINZENAL_DIAS);document.querySelectorAll(\'.cg-dia-btn\').forEach(b=>{b.classList.toggle(\'cg-btn-on\',QUINZENAL_DIAS.has(b.dataset.dia));});_geralRender();})()" '
+    +'style="padding:5px 12px;border-radius:6px;font-size:.78rem;font-weight:600;cursor:pointer;border:1px solid var(--sub);color:var(--sub);background:transparent;margin-right:8px;">Quinzena</button>';
+  const btnsDias=todasDias.map(d=>{
+    const ativo=_geralDiasSel.has(d)?'cg-btn-on':'';
+    return '<button class="cg-dia-btn '+ativo+'" data-dia="'+d+'" onclick="(function(b,dia){'
+      +'if(_geralDiasSel.has(dia)){_geralDiasSel.delete(dia);b.classList.remove(\'cg-btn-on\');}'
+      +'else{_geralDiasSel.add(dia);b.classList.add(\'cg-btn-on\');}'
+      +'_geralRender();})(this,\''+d+'\')" '
+      +'style="padding:5px 12px;border-radius:6px;font-size:.78rem;font-weight:600;cursor:pointer;border:1px solid var(--border);color:var(--text);background:transparent;">'+d+'</button>';
+  }).join(' ');
+
+  el.innerHTML='<div class="card">'
+    +'<h2>Consolidado Geral — Quinzenal</h2>'
+    +'<style>.cg-btn-on{background:var(--orange)!important;color:#fff!important;border-color:var(--orange)!important;}</style>'
+    +'<div style="display:flex;align-items:center;flex-wrap:wrap;gap:6px;margin-bottom:20px;padding:12px 16px;background:var(--bg2);border-radius:8px;">'
+      +'<span style="font-size:.78rem;color:var(--sub);font-weight:600;margin-right:4px;">Filtrar por data:</span>'
+      +btnQuinzenal+btnTodos+btnsDias
+    +'</div>'
+    +'<div id="cg-body"></div>'
+    +'</div>';
+
+  _geralRender();
 }
 
 </script></body></html>
