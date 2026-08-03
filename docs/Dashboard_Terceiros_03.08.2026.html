@@ -480,17 +480,7 @@ function switchTab(name){
 buildDay(DIAS_KEYS[0]);
 
 const HIST=[
-{nome:"Carlos",dia:"30/07/2026",tipo:"FRACIONADO",vei:"Truck",trecho:"Navegantes-Sc X Guarulhos-Sp",fat:10750.35,res:-14.73,mg:-0.0014,ocup:0.9181,ctes:29,c_transf:4000.0,target:4100,dif:-100.0,status:"ABAIXO DO TARGET"},
-{nome:"Adriano",dia:"30/07/2026",tipo:"FRACIONADO",vei:"Truck",trecho:"Navegantes-Sc X São Paulo-Sp",fat:11734.1,res:223.88,mg:0.0191,ocup:0.9717,ctes:38,c_transf:4100.0,target:4100.0,dif:0.0,status:"DENTRO DO TARGET"},
-{nome:"Renato",dia:"30/07/2026",tipo:"FRACIONADO",vei:"Carreta",trecho:"São Paulo-Sp X Itajai-Sc",fat:6265.39,res:-92.97,mg:-0.0148,ocup:0.1912,ctes:24,c_transf:1850.0,target:1850,dif:0.0,status:"DENTRO DO TARGET"},
-{nome:"Ricardo",dia:"30/07/2026",tipo:"FRACIONADO",vei:"Carreta",trecho:"Itajai-Sc X São Paulo-Sp",fat:28480.37,res:5750.29,mg:0.2019,ocup:0.6733,ctes:76,c_transf:5100.0,target:5100,dif:0.0,status:"DENTRO DO TARGET"},
-{nome:"Rafael",dia:"31/07/2026",tipo:"FECHADO",vei:"Van",trecho:"Itajai-Sc X Chapeco-Sc",fat:2791.69,res:-789.98,mg:-0.283,ocup:1.0,ctes:6,c_transf:2800.0,target:2800.0,dif:0.0,status:"DENTRO DO TARGET"},
-{nome:"Jonathan",dia:"31/07/2026",tipo:"FECHADO",vei:"Van",trecho:"Londrina-Pr X Cascavel-Pr",fat:2491.0,res:-8.6,mg:-0.0035,ocup:1.0,ctes:10,c_transf:1800.0,target:1800.0,dif:0.0,status:"DENTRO DO TARGET"},
-{nome:"Kelvyn",dia:"31/07/2026",tipo:"FECHADO",vei:"Van",trecho:"São Paulo-Sp X Itapeva-Sp",fat:7262.4,res:4235.28,mg:0.5832,ocup:0.7076,ctes:2,c_transf:900.0,target:1900,dif:-1000.0,status:"ABAIXO DO TARGET"},
-{nome:"Fabiano",dia:"31/07/2026",tipo:"FECHADO",vei:"Van",trecho:"Curitiba-Pr X Guarulhos-Sp",fat:4966.43,res:3970.08,mg:0.7994,ocup:1.0,ctes:2,c_transf:2100.0,target:1800.0,dif:300.0,status:"FORA DO TARGET"},
-{nome:"Vinicius",dia:"31/07/2026",tipo:"FECHADO",vei:"3/4",trecho:"Itajai-Sc X Sao Goncalo Do Rio Abaixo-Mg",fat:12688.02,res:2216.82,mg:0.1747,ocup:0.5361,ctes:2,c_transf:6600.0,target:6600.0,dif:0.0,status:"DENTRO DO TARGET"},
-{nome:"Nuylan",dia:"31/07/2026",tipo:"FRACIONADO",vei:"Truck",trecho:"Cotia-Sp X Itajai-Sc",fat:8283.53,res:512.26,mg:0.0618,ocup:0.2736,ctes:3,c_transf:2500.0,target:2500.0,dif:0.0,status:"DENTRO DO TARGET"},
-{nome:"Renato",dia:"31/07/2026",tipo:"FECHADO",vei:"Carreta",trecho:"Itajai-Sc X Guarulhos-Sp",fat:8843.99,res:922.24,mg:0.1043,ocup:1.0,ctes:2,c_transf:5200.0,target:5200,dif:0.0,status:"DENTRO DO TARGET"}
+
 ];
 
 function buildConsolidadoGeral(){
@@ -515,6 +505,29 @@ function buildConsolidadoGeral(){
     +'<span style="background:#e84040;color:#fff;padding:4px 14px;border-radius:20px;font-size:.8rem;font-weight:600;">✗ FORA: '+fora+'</span>'
     +'<span style="background:var(--orange);color:#fff;padding:4px 14px;border-radius:20px;font-size:.8rem;font-weight:600;">↓ ABAIXO: '+abaixo+'</span>'
     +'</div>';
+  // Melhor e pior operação (por resultado)
+  const melhor=HIST.reduce((a,b)=>b.res>a.res?b:a,HIST[0]);
+  const pior  =HIST.reduce((a,b)=>b.res<a.res?b:a,HIST[0]);
+  function destCard(op,tipo){
+    const isMelhor=tipo==='melhor';
+    const cor=isMelhor?'var(--green)':'#e84040';
+    const icone=isMelhor?'🏆':'⚠️';
+    const label=isMelhor?'Melhor Operação':'Pior Operação';
+    return '<div style="flex:1;min-width:260px;border:2px solid '+cor+';border-radius:10px;padding:16px 20px;background:var(--card);">'
+      +'<div style="font-size:.72rem;font-weight:700;color:'+cor+';letter-spacing:.08em;margin-bottom:6px;">'+icone+' '+label.toUpperCase()+'</div>'
+      +'<div style="font-size:1.15rem;font-weight:700;color:var(--text);margin-bottom:2px;">'+op.nome+'</div>'
+      +'<div style="font-size:.8rem;color:var(--sub);margin-bottom:10px;">'+op.dia+' · '+op.tipo+' · '+op.vei+'</div>'
+      +'<div style="font-size:.78rem;color:var(--sub);margin-bottom:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" title="'+op.trecho+'">📍 '+op.trecho+'</div>'
+      +'<div style="display:flex;gap:18px;flex-wrap:wrap;margin-top:8px;">'
+        +'<div><div style="font-size:.65rem;color:var(--sub);">Faturamento</div><div style="font-weight:600;font-size:.95rem;">'+fmt(op.fat)+'</div></div>'
+        +'<div><div style="font-size:.65rem;color:var(--sub);">Resultado</div><div style="font-weight:700;font-size:.95rem;color:'+cor+';">'+fmt(op.res)+'</div></div>'
+        +'<div><div style="font-size:.65rem;color:var(--sub);">Margem</div><div style="font-weight:600;font-size:.95rem;color:'+cor+';">'+pct(op.mg)+'</div></div>'
+        +'<div><div style="font-size:.65rem;color:var(--sub);">C.Transf</div><div style="font-weight:600;font-size:.95rem;">'+fmt(op.c_transf)+'</div></div>'
+      +'</div>'
+    +'</div>';
+  }
+  const destaques='<div style="display:flex;gap:16px;flex-wrap:wrap;margin:0 0 24px 0;">'
+    +destCard(melhor,'melhor')+destCard(pior,'pior')+'</div>';
   // Agrupar por dia
   const dias=[...new Set(HIST.map(o=>o.dia))].sort((a,b)=>{const p=s=>s.split('/').reverse().join('');return p(a)<p(b)?-1:1;});
   const dFat=dias.map(d=>Math.round(HIST.filter(o=>o.dia===d).reduce((a,o)=>a+o.fat,0)*100)/100);
@@ -550,8 +563,8 @@ function buildConsolidadoGeral(){
     +'<th>C.Transf / Target</th><th>Dif</th><th>Status</th>'
     +'</tr>'+trows+'</table></div>';
   const chartId='ch_geral_'+Date.now();
-  el.innerHTML='<div class="card"><h2>Consolidado Geral — Últimos 15 dias</h2>'
-    +kpis+pills
+  el.innerHTML='<div class="card"><h2>Consolidado Geral — Quinzenal</h2>'
+    +kpis+pills+destaques
     +'<canvas id="'+chartId+'" height="70" style="margin-bottom:24px;"></canvas>'
     +tabela+'</div>';
   const GC=getGC();
