@@ -603,7 +603,7 @@ function _geralRender(){
   el2.innerHTML=kpis+pills
     +'<div style="background:var(--card);border-radius:10px;padding:16px 18px;margin-bottom:18px;border:1px solid var(--border);">'
     +'<h3 style="font-size:.9rem;font-weight:700;color:var(--text);letter-spacing:.04em;margin:0 0 14px 0;">FATURAMENTO &amp; RESULTADO</h3>'
-    +'<canvas id="'+lineId+'" style="max-height:280px;"></canvas></div>'
+    +'<canvas id="'+lineId+'" height="120"></canvas></div>'
     +destaques
     +'<canvas id="'+chartId+'" height="70" style="margin-bottom:22px;"></canvas>'
     +tabela;
@@ -611,6 +611,7 @@ function _geralRender(){
   if(_lineChart){try{_lineChart.destroy();}catch(e){}}
   const GC2=getGC();
   _lineChart=new Chart(document.getElementById(lineId),{
+    type:'bar',
     data:{
       labels:dias,
       datasets:[
