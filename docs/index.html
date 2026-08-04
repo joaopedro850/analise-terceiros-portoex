@@ -597,15 +597,13 @@ function _geralRender(){
 
   const chartId='cg-chart';
   const lineId='cg-line';
-  // Marcadores de melhor/pior dia
-  const maxFat=Math.max(...dFat); const minFat=Math.min(...dFat);
-  const ptClrs=dFat.map(v=>v===maxFat?'#4caf50':v===minFat?'#e84040':'#4472c4');
-  const ptRads=dFat.map(v=>(v===maxFat||v===minFat)?8:4);
+  // Margem % por dia para linha laranja
+  const dMg=dias.map((d,i)=>dFat[i]?Math.round(dRes[i]/dFat[i]*10000)/100:0);
+
   el2.innerHTML=kpis+pills
     +'<div style="background:var(--card);border-radius:10px;padding:16px 18px;margin-bottom:18px;border:1px solid var(--border);">'
-    +'<h3 style="font-size:.85rem;font-weight:700;color:var(--text);margin:0 0 6px 0;">📈 Dashboard Executivo — Evolução do Faturamento</h3>'
-    +'<p style="font-size:.72rem;color:var(--sub);margin:0 0 12px 0;">🟢 Melhor dia &nbsp;|&nbsp; 🔴 Pior dia &nbsp;|&nbsp; Linha tracejada = Resultado</p>'
-    +'<canvas id="'+lineId+'" height="90"></canvas></div>'
+    +'<h3 style="font-size:.9rem;font-weight:700;color:var(--text);letter-spacing:.04em;margin:0 0 14px 0;">FATURAMENTO &amp; RESULTADO</h3>'
+    +'<canvas id="'+lineId+'" style="max-height:280px;"></canvas></div>'
     +destaques
     +'<canvas id="'+chartId+'" height="70" style="margin-bottom:22px;"></canvas>'
     +tabela;
@@ -613,19 +611,31 @@ function _geralRender(){
   if(_lineChart){try{_lineChart.destroy();}catch(e){}}
   const GC2=getGC();
   _lineChart=new Chart(document.getElementById(lineId),{
-    type:'line',
-    data:{labels:dias,datasets:[
-      {label:'Faturamento/Dia',data:dFat,borderColor:'#4472c4',backgroundColor:'rgba(68,114,196,.08)',fill:true,tension:0.35,
-       pointBackgroundColor:ptClrs,pointBorderColor:ptClrs,pointRadius:ptRads,pointHoverRadius:10},
-      {label:'Resultado/Dia',data:dRes,borderColor:'rgba(80,200,80,.9)',backgroundColor:'transparent',fill:false,tension:0.35,
-       borderDash:[5,4],pointRadius:3,pointBackgroundColor:'rgba(80,200,80,.9)'}
-    ]},
-    options:{responsive:true,
-      plugins:{legend:{labels:{color:GC2.color,font:{size:10}}},
-        tooltip:{callbacks:{label:function(c){return c.dataset.label+': R$ '+c.parsed.y.toLocaleString('pt-BR',{minimumFractionDigits:2});}}}},
+    data:{
+      labels:dias,
+      datasets:[
+        {type:'bar',label:'Faturamento',data:dFat,backgroundColor:'rgba(68,114,196,.75)',borderRadius:4,yAxisID:'y'},
+        {type:'bar',label:'Resultado',  data:dRes,backgroundColor:dRes.map(v=>v>=0?'rgba(80,190,80,.8)':'rgba(232,64,64,.8)'),borderRadius:4,yAxisID:'y'},
+        {type:'line',label:'Margem %',  data:dMg, borderColor:'#f28c28',backgroundColor:'transparent',
+         pointBackgroundColor:'#f28c28',pointBorderColor:'#f28c28',
+         pointRadius:5,pointHoverRadius:8,tension:0.35,
+         borderWidth:2.5,yAxisID:'pct'}
+      ]
+    },
+    options:{
+      responsive:true,
+      interaction:{mode:'index',intersect:false},
+      plugins:{
+        legend:{labels:{color:GC2.color,font:{size:10},usePointStyle:true}},
+        tooltip:{callbacks:{label:function(c){
+          if(c.dataset.yAxisID==='pct') return ' '+c.dataset.label+': '+c.parsed.y.toFixed(1)+'%';
+          return ' '+c.dataset.label+': R$ '+c.parsed.y.toLocaleString('pt-BR',{minimumFractionDigits:2});
+        }}}
+      },
       scales:{
-        y:{ticks:{color:GC2.color,callback:function(v){return 'R$ '+v.toLocaleString('pt-BR');}},grid:{color:GC2.grid}},
-        x:{ticks:{color:GC2.color,font:{size:9}},grid:{color:GC2.grid}}
+        y:{position:'left',ticks:{color:GC2.color,callback:function(v){return 'R$'+v.toLocaleString('pt-BR');}},grid:{color:GC2.grid}},
+        pct:{position:'right',ticks:{color:'#f28c28',callback:function(v){return v+'%';}},grid:{drawOnChartArea:false}},
+        x:{ticks:{color:GC2.color,font:{size:10}},grid:{color:GC2.grid}}
       }
     }
   });
