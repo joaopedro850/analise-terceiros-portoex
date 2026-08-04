@@ -221,10 +221,10 @@ function fmt(v){return'R '+v.toLocaleString('pt-BR',{minimumFractionDigits:2,ma
 function pct(v){return(v*100).toFixed(1)+'%';}
 function fi(v){return Math.round(v).toLocaleString('pt-BR');}
 function sbadge(st){
-  if(st==='DENTRO DO TARGET') return'<span class="badge badge-g">✔ DENTRO DO TARGET</span>';
-  if(st==='ABAIXO DO TARGET') return'<span class="badge badge-b">↓ ABAIXO DO TARGET</span>';
-  if(st==='FORA DO TARGET')   return'<span class="badge badge-r">⚠ FORA DO TARGET</span>';
-  return'<span class="badge" style="background:#1a2535;color:#6b7a91;">'+st+'</span>';
+  if(st==='DENTRO DO TARGET') return'<span class="cg-st-ok">✔ Dentro do Target</span>';
+  if(st==='ABAIXO DO TARGET') return'<span class="cg-st-warn">↓ Abaixo do Target</span>';
+  if(st==='FORA DO TARGET')   return'<span class="cg-st-bad">⚠ Fora do Target</span>';
+  return'<span class="cg-st-warn">'+st+'</span>';
 }
 function mgcl(v){return v>=0.15?'g':v>=0?'b':'r';}
 function mgnum(v){return v>=0.15?'mgnum-g':v>=0?'mgnum-b':'mgnum-r';}
@@ -276,7 +276,7 @@ function buildDay(dia){
     const hasBx=!!B64[o.nome];
     cards+='<div class="op-card">'
       +'<div class="op-name">'+o.nome
-        +' <span style="font-size:.68rem;font-weight:400;color:var(--sub);margin-left:6px;">'+o.tipo+'</span>'
+        +' <span class="'+(o.tipo==='fracionado'?'cg-tipo-frac':'cg-tipo-fech')+'">'+o.tipo+'</span>'
         +' <span style="font-size:.68rem;color:var(--sub);float:right;margin-top:2px;">'+o.vei+'</span></div>'
       +'<div class="op-trecho">'+o.trecho+'</div>'
       +'<div style="margin-bottom:12px;">'+sbadge(o.status)+'</div>'
@@ -300,8 +300,9 @@ function buildDay(dia){
   let trows='';
   ops.forEach(o=>{
     const ds=o.dif===0?'<span style="color:var(--sub);">—</span>':o.dif>0?'<span class="num-r">+R$'+fi(o.dif)+'</span>':'<span class="num-g">-R$'+fi(Math.abs(o.dif))+'</span>';
-    trows+='<tr>'
+    trows+='<tr class="cg-op-row">'
       +'<td><b>'+o.nome+'</b></td>'
+      +'<td><span class="'+(o.tipo==='fracionado'?'cg-tipo-frac':'cg-tipo-fech')+'">'+o.tipo+'</span></td>'
       +'<td class="num-b">'+fmt(o.fat)+'</td>'
       +'<td class="'+mgnum(o.mg)+'">'+fmt(o.res)+'</td>'
       +'<td class="'+mgcl(o.mg)+'">'+pct(o.mg)+'</td>'
@@ -315,15 +316,15 @@ function buildDay(dia){
   const k=dia.replace(/[/]/g,'');
   document.getElementById('main-content').innerHTML=
     /* KPIs */
-    '<div class="kpi-row">'
-      +'<div class="kpi"><div class="kpi-label">Faturamento</div><div class="kpi-val b">'+fmt(fat)+'</div></div>'
-      +'<div class="kpi"><div class="kpi-label">Resultado</div><div class="kpi-val '+mgcl(mg)+'">'+fmt(res)+'</div></div>'
-      +'<div class="kpi"><div class="kpi-label">Margem</div><div class="kpi-val '+mgcl(mg)+'">'+pct(mg)+'</div></div>'
-      +'<div class="kpi"><div class="kpi-label">Viagens</div><div class="kpi-val b">'+ops.length+'</div></div>'
-      +'<div class="kpi"><div class="kpi-label">CTEs</div><div class="kpi-val b">'+ctes+'</div></div>'
-      +'<div class="kpi"><div class="kpi-label">Dentro Target</div><div class="kpi-val g">'+dentro+'</div></div>'
-      +'<div class="kpi"><div class="kpi-label">Abaixo Target</div><div class="kpi-val b">'+abaixo+'</div></div>'
-      +'<div class="kpi"><div class="kpi-label">Fora Target</div><div class="kpi-val '+(fora>0?'r':'g')+'">'+fora+'</div></div>'
+    '<div class="cg-kpi-row">'
+      +'<div class="cg-kpi"><div class="cg-kpi-icon" style="background:rgba(59,130,246,.12);color:#60a5fa;">💰</div><div><div style="font-size:.62rem;color:var(--sub);text-transform:uppercase;letter-spacing:.4px;margin-bottom:3px;">Faturamento</div><div style="font-size:1rem;font-weight:800;color:var(--blue);">'+fmt(fat)+'</div></div></div>'
+      +'<div class="cg-kpi"><div class="cg-kpi-icon" style="background:'+(mg>=0?'rgba(34,197,94,.12)':'rgba(239,68,68,.12)')+';color:'+(mg>=0?'var(--green)':'var(--red)')+';">📊</div><div><div style="font-size:.62rem;color:var(--sub);text-transform:uppercase;letter-spacing:.4px;margin-bottom:3px;">Resultado</div><div style="font-size:1rem;font-weight:800;color:'+(mg>=0?'var(--green)':'var(--red)')+';">'+fmt(res)+'</div></div></div>'
+      +'<div class="cg-kpi"><div class="cg-kpi-icon" style="background:rgba(244,117,35,.12);color:var(--orange);">📈</div><div><div style="font-size:.62rem;color:var(--sub);text-transform:uppercase;letter-spacing:.4px;margin-bottom:3px;">Margem</div><div style="font-size:1rem;font-weight:800;color:'+(mg>=0.15?'var(--green)':mg>=0?'var(--blue)':'var(--red)')+';">'+pct(mg)+'</div></div></div>'
+      +'<div class="cg-kpi"><div class="cg-kpi-icon" style="background:rgba(167,139,250,.12);color:#a78bfa;">🚛</div><div><div style="font-size:.62rem;color:var(--sub);text-transform:uppercase;letter-spacing:.4px;margin-bottom:3px;">Viagens</div><div style="font-size:1rem;font-weight:800;color:var(--text);">'+ops.length+'</div></div></div>'
+      +'<div class="cg-kpi"><div class="cg-kpi-icon" style="background:rgba(6,182,212,.12);color:#22d3ee;">📋</div><div><div style="font-size:.62rem;color:var(--sub);text-transform:uppercase;letter-spacing:.4px;margin-bottom:3px;">CTEs</div><div style="font-size:1rem;font-weight:800;color:var(--text);">'+ctes+'</div></div></div>'
+      +'<div class="cg-kpi"><div class="cg-kpi-icon" style="background:rgba(34,197,94,.12);color:var(--green);">✅</div><div><div style="font-size:.62rem;color:var(--sub);text-transform:uppercase;letter-spacing:.4px;margin-bottom:3px;">Dentro Target</div><div style="font-size:1rem;font-weight:800;color:var(--green);">'+dentro+'</div></div></div>'
+      +'<div class="cg-kpi"><div class="cg-kpi-icon" style="background:rgba(59,130,246,.12);color:var(--blue);">🎯</div><div><div style="font-size:.62rem;color:var(--sub);text-transform:uppercase;letter-spacing:.4px;margin-bottom:3px;">Abaixo Target</div><div style="font-size:1rem;font-weight:800;color:var(--blue);">'+abaixo+'</div></div></div>'
+      +'<div class="cg-kpi"><div class="cg-kpi-icon" style="background:'+(fora>0?'rgba(239,68,68,.12)':'rgba(34,197,94,.12)')+';color:'+(fora>0?'var(--red)':'var(--green)')+';">⚠️</div><div><div style="font-size:.62rem;color:var(--sub);text-transform:uppercase;letter-spacing:.4px;margin-bottom:3px;">Fora Target</div><div style="font-size:1rem;font-weight:800;color:'+(fora>0?'var(--red)':'var(--green)')+';">'+fora+'</div></div></div>'
     +'</div>'
     /* Alerts */
     +(alerts?'<div style="margin-bottom:18px;">'+alerts+'</div>':'')
@@ -336,9 +337,9 @@ function buildDay(dia){
       +'<div class="chart-box"><div class="chart-title">Status das Operações</div><canvas id="cs-'+k+'"></canvas></div>'
     +'</div>'
     /* Table */
-    +'<div class="section"><div class="sec-title">Detalhamento por Operador</div>'
-    +'<table><tr><th>Operador</th><th>Faturamento</th><th>Resultado</th><th>Margem</th><th>CTEs</th><th>Veículo</th><th>Ocupação</th><th>C.Transf / Target</th><th>Dif</th><th>Status</th></tr>'
-    +trows+'</table></div>';
+    +'<div class="section"><div class="sec-title" style="margin-bottom:14px;">Detalhamento por Operador</div>'
+    +'<div class="cg-table-wrap"><table class="cg-table"><thead><tr><th>Operador</th><th>Tipo</th><th>Faturamento</th><th>Resultado</th><th>Margem</th><th>CTEs</th><th>Veículo</th><th>Ocupação</th><th>C.Transf / Target</th><th>Dif</th><th>Status</th></tr></thead><tbody>'
+    +trows+'</tbody></table></div></div>';
 
   /* ── CHART 1: Fat + Res (barras) + Margem (linha) ────── */
   const names=ops.map(o=>o.nome);
@@ -423,16 +424,17 @@ function buildConsolidado(){
   let drows='';
   DIAS_KEYS.forEach(dia=>{
     const dops=DIAS[dia].ops,df=dops.reduce((a,o)=>a+o.fat,0),dr=dops.reduce((a,o)=>a+o.res,0),dm=df>0?dr/df:0;
-    drows+='<tr><td><b>'+dia+'</b></td><td>'+dops.length+'</td><td>'+dops.reduce((a,o)=>a+o.ctes,0)+'</td>'
+    drows+='<tr class="cg-op-row"><td><b style="color:var(--orange);">'+dia+'</b></td><td>'+dops.length+'</td><td>'+dops.reduce((a,o)=>a+o.ctes,0)+'</td>'
       +'<td class="num-b">'+fmt(df)+'</td><td class="'+mgnum(dm)+'">'+fmt(dr)+'</td><td class="'+mgcl(dm)+'">'+pct(dm)+'</td></tr>';
   });
 
   let arows='';
   allOps.forEach(o=>{
     const ds=o.dif===0?'<span style="color:var(--sub);">—</span>':o.dif>0?'<span class="num-r">+R$'+fi(o.dif)+'</span>':'<span class="num-g">-R$'+fi(Math.abs(o.dif))+'</span>';
-    arows+='<tr>'
+    arows+='<tr class="cg-op-row">'
       +'<td style="color:var(--sub);font-size:.72rem;">'+o.dia+'</td>'
       +'<td><b>'+o.nome+'</b></td>'
+      +'<td><span class="'+(o.tipo==='fracionado'?'cg-tipo-frac':'cg-tipo-fech')+'">'+o.tipo+'</span></td>'
       +'<td class="num-b">'+fmt(o.fat)+'</td>'
       +'<td class="'+mgnum(o.mg)+'">'+fmt(o.res)+'</td>'
       +'<td class="'+mgcl(o.mg)+'">'+pct(o.mg)+'</td>'
@@ -449,26 +451,26 @@ function buildConsolidado(){
               'rgba(167,139,250,1)','rgba(6,182,212,1)','rgba(245,158,11,1)','rgba(239,68,68,1)'];
 
   document.getElementById('main-content').innerHTML=
-    '<div class="kpi-row">'
-      +'<div class="kpi"><div class="kpi-label">Faturamento Total</div><div class="kpi-val b">'+fmt(fat)+'</div></div>'
-      +'<div class="kpi"><div class="kpi-label">Resultado Total</div><div class="kpi-val '+mgcl(mg)+'">'+fmt(res)+'</div></div>'
-      +'<div class="kpi"><div class="kpi-label">Margem Consolidada</div><div class="kpi-val '+mgcl(mg)+'">'+pct(mg)+'</div></div>'
-      +'<div class="kpi"><div class="kpi-label">Viagens</div><div class="kpi-val b">'+allOps.length+'</div></div>'
-      +'<div class="kpi"><div class="kpi-label">CTEs</div><div class="kpi-val b">'+ctes+'</div></div>'
-      +'<div class="kpi"><div class="kpi-label">Dentro Target</div><div class="kpi-val g">'+dentro+'</div></div>'
-      +'<div class="kpi"><div class="kpi-label">Abaixo Target</div><div class="kpi-val b">'+abaixo+'</div></div>'
-      +'<div class="kpi"><div class="kpi-label">Fora Target</div><div class="kpi-val '+(fora>0?'r':'g')+'">'+fora+'</div></div>'
+    '<div class="cg-kpi-row">'
+      +'<div class="cg-kpi"><div class="cg-kpi-icon" style="background:rgba(59,130,246,.12);color:#60a5fa;">💰</div><div><div style="font-size:.62rem;color:var(--sub);text-transform:uppercase;letter-spacing:.4px;margin-bottom:3px;">Faturamento Total</div><div style="font-size:1rem;font-weight:800;color:var(--blue);">'+fmt(fat)+'</div></div></div>'
+      +'<div class="cg-kpi"><div class="cg-kpi-icon" style="background:'+(mg>=0?'rgba(34,197,94,.12)':'rgba(239,68,68,.12)')+';color:'+(mg>=0?'var(--green)':'var(--red)')+';">📊</div><div><div style="font-size:.62rem;color:var(--sub);text-transform:uppercase;letter-spacing:.4px;margin-bottom:3px;">Resultado Total</div><div style="font-size:1rem;font-weight:800;color:'+(mg>=0?'var(--green)':'var(--red)')+';">'+fmt(res)+'</div></div></div>'
+      +'<div class="cg-kpi"><div class="cg-kpi-icon" style="background:rgba(244,117,35,.12);color:var(--orange);">📈</div><div><div style="font-size:.62rem;color:var(--sub);text-transform:uppercase;letter-spacing:.4px;margin-bottom:3px;">Margem Geral</div><div style="font-size:1rem;font-weight:800;color:'+(mg>=0.15?'var(--green)':mg>=0?'var(--blue)':'var(--red)')+';">'+pct(mg)+'</div></div></div>'
+      +'<div class="cg-kpi"><div class="cg-kpi-icon" style="background:rgba(167,139,250,.12);color:#a78bfa;">🚛</div><div><div style="font-size:.62rem;color:var(--sub);text-transform:uppercase;letter-spacing:.4px;margin-bottom:3px;">Viagens</div><div style="font-size:1rem;font-weight:800;color:var(--text);">'+allOps.length+'</div></div></div>'
+      +'<div class="cg-kpi"><div class="cg-kpi-icon" style="background:rgba(6,182,212,.12);color:#22d3ee;">📋</div><div><div style="font-size:.62rem;color:var(--sub);text-transform:uppercase;letter-spacing:.4px;margin-bottom:3px;">CTEs</div><div style="font-size:1rem;font-weight:800;color:var(--text);">'+ctes+'</div></div></div>'
+      +'<div class="cg-kpi"><div class="cg-kpi-icon" style="background:rgba(34,197,94,.12);color:var(--green);">✅</div><div><div style="font-size:.62rem;color:var(--sub);text-transform:uppercase;letter-spacing:.4px;margin-bottom:3px;">Dentro Target</div><div style="font-size:1rem;font-weight:800;color:var(--green);">'+dentro+'</div></div></div>'
+      +'<div class="cg-kpi"><div class="cg-kpi-icon" style="background:rgba(59,130,246,.12);color:var(--blue);">🎯</div><div><div style="font-size:.62rem;color:var(--sub);text-transform:uppercase;letter-spacing:.4px;margin-bottom:3px;">Abaixo Target</div><div style="font-size:1rem;font-weight:800;color:var(--blue);">'+abaixo+'</div></div></div>'
+      +'<div class="cg-kpi"><div class="cg-kpi-icon" style="background:'+(fora>0?'rgba(239,68,68,.12)':'rgba(34,197,94,.12)')+';color:'+(fora>0?'var(--red)':'var(--green)')+';">⚠️</div><div><div style="font-size:.62rem;color:var(--sub);text-transform:uppercase;letter-spacing:.4px;margin-bottom:3px;">Fora Target</div><div style="font-size:1rem;font-weight:800;color:'+(fora>0?'var(--red)':'var(--green)')+';">'+fora+'</div></div></div>'
     +'</div>'
     +'<div class="charts-row-2">'
       +'<div class="chart-box"><div class="chart-title">Faturamento &amp; Resultado por Dia</div><canvas id="c-cd"></canvas></div>'
       +'<div class="chart-box"><div class="chart-title">Faturamento por Operador</div><canvas id="c-cf"></canvas></div>'
       +'<div class="chart-box"><div class="chart-title">Margem por Operador (%)</div><canvas id="c-cr"></canvas></div>'
     +'</div>'
-    +'<div class="section" style="margin-bottom:18px;"><div class="sec-title">Resumo por Dia</div>'
-    +'<table><tr><th>Data</th><th>Viagens</th><th>CTEs</th><th>Faturamento</th><th>Resultado</th><th>Margem</th></tr>'+drows+'</table></div>'
-    +'<div class="section"><div class="sec-title">Todas as Operações</div>'
-    +'<table><tr><th>Data</th><th>Operador</th><th>Faturamento</th><th>Resultado</th><th>Margem</th><th>CTEs</th><th>Veículo</th><th>Ocupação</th><th>C.Transf / Target</th><th>Dif</th><th>Status</th></tr>'
-    +arows+'</table></div>';
+    +'<div class="section" style="margin-bottom:18px;"><div class="sec-title" style="margin-bottom:14px;">Resumo por Dia</div>'
+    +'<div class="cg-table-wrap"><table class="cg-table"><thead><tr><th>Data</th><th>Viagens</th><th>CTEs</th><th>Faturamento</th><th>Resultado</th><th>Margem</th></tr></thead><tbody>'+drows+'</tbody></table></div></div>'
+    +'<div class="section"><div class="sec-title" style="margin-bottom:14px;">Todas as Operações</div>'
+    +'<div class="cg-table-wrap"><table class="cg-table"><thead><tr><th>Data</th><th>Operador</th><th>Tipo</th><th>Faturamento</th><th>Resultado</th><th>Margem</th><th>CTEs</th><th>Veículo</th><th>Ocupação</th><th>C.Transf / Target</th><th>Dif</th><th>Status</th></tr></thead><tbody>'
+    +arows+'</tbody></table></div></div>';
 
   /* ── CHART 1: Fat + Res por Dia (linha) ─────────────── */
   const dats=DIAS_KEYS.map(dia=>({
