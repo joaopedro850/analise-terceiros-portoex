@@ -609,34 +609,35 @@ function _geralRender(){
     +tabela;
 
   if(_lineChart){try{_lineChart.destroy();}catch(e){}}
-  const GC2=getGC();
+  var _isDark=document.body.classList.contains('dark')||true;
+  var _tc='#9baab8'; var _gc='rgba(255,255,255,0.08)';
   _lineChart=new Chart(document.getElementById(lineId),{
     type:'bar',
     data:{
       labels:dias,
       datasets:[
-        {type:'bar',label:'Faturamento',data:dFat,backgroundColor:'rgba(68,114,196,.75)',borderRadius:4,yAxisID:'y'},
-        {type:'bar',label:'Resultado',  data:dRes,backgroundColor:dRes.map(v=>v>=0?'rgba(80,190,80,.8)':'rgba(232,64,64,.8)'),borderRadius:4,yAxisID:'y'},
-        {type:'line',label:'Margem %',  data:dMg, borderColor:'#f28c28',backgroundColor:'transparent',
+        {type:'bar',label:'Faturamento',data:dFat,backgroundColor:'rgba(68,114,196,.75)',borderRadius:4,yAxisID:'y',order:2},
+        {type:'bar',label:'Resultado',  data:dRes,backgroundColor:dRes.map(function(v){return v>=0?'rgba(80,190,80,.8)':'rgba(232,64,64,.8)';}),borderRadius:4,yAxisID:'y',order:3},
+        {type:'line',label:'Margem %',  data:dMg,borderColor:'#f28c28',backgroundColor:'transparent',
          pointBackgroundColor:'#f28c28',pointBorderColor:'#f28c28',
-         pointRadius:5,pointHoverRadius:8,tension:0.35,
-         borderWidth:2.5,yAxisID:'pct'}
+         pointRadius:6,pointHoverRadius:9,tension:0.35,
+         borderWidth:2.5,yAxisID:'pct',order:1}
       ]
     },
     options:{
       responsive:true,
       interaction:{mode:'index',intersect:false},
       plugins:{
-        legend:{labels:{color:GC2.color,font:{size:10},usePointStyle:true}},
+        legend:{labels:{color:_tc,font:{size:11},usePointStyle:true}},
         tooltip:{callbacks:{label:function(c){
           if(c.dataset.yAxisID==='pct') return ' '+c.dataset.label+': '+c.parsed.y.toFixed(1)+'%';
           return ' '+c.dataset.label+': R$ '+c.parsed.y.toLocaleString('pt-BR',{minimumFractionDigits:2});
         }}}
       },
       scales:{
-        y:{position:'left',ticks:{color:GC2.color,callback:function(v){return 'R$'+v.toLocaleString('pt-BR');}},grid:{color:GC2.grid}},
-        pct:{position:'right',ticks:{color:'#f28c28',callback:function(v){return v+'%';}},grid:{drawOnChartArea:false}},
-        x:{ticks:{color:GC2.color,font:{size:10}},grid:{color:GC2.grid}}
+        y:{position:'left',grid:{color:_gc},ticks:{color:_tc,callback:function(v){return 'R$'+v.toLocaleString('pt-BR');}}},
+        pct:{position:'right',grid:{drawOnChartArea:false},ticks:{color:'#f28c28',callback:function(v){return v.toFixed(0)+'%';}}},
+        x:{grid:{color:_gc},ticks:{color:_tc,font:{size:10}}}
       }
     }
   });
