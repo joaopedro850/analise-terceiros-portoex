@@ -11,3 +11,5 @@ HISTORICO/
 
 # Manter apenas docs/ (GitHub Pages)
 !docs/
+!docs/excels/
+!docs/excels/*.xlsx
