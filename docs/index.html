@@ -2,7 +2,7 @@
 <html lang="pt-BR"><head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Painel Operacional — 05/08/2026 e 06/08/2026 | PortoEx</title>
+<title>Painel Operacional — 06/08/2026 e 07/08/2026 e 10/08/2026 | PortoEx</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <style>
 :root{
@@ -177,13 +177,14 @@ tr:hover td{background:rgba(255,255,255,.02);}
     </div>
   </div>
   <div class="hd-right">
-    <div class="hd-date-item"><div class="hd-date-label">Data da Operação</div><div class="hd-date-val">05/08/2026 e 06/08/2026</div></div>
+    <div class="hd-date-item"><div class="hd-date-label">Data da Operação</div><div class="hd-date-val">06/08/2026 e 07/08/2026 e 10/08/2026</div></div>
     <div class="hd-date-item"><div class="hd-date-label">Data da Análise</div><div class="hd-date-val">11/08/2026</div></div>
   </div>
 </header>
 <div class="tabs" id="tabs">
-  <div class="tab active" onclick="switchTab(this.textContent)">05/08/2026</div>
-  <div class="tab" onclick="switchTab(this.textContent)">06/08/2026</div>
+  <div class="tab active" onclick="switchTab(this.textContent)">06/08/2026</div>
+  <div class="tab" onclick="switchTab(this.textContent)">07/08/2026</div>
+  <div class="tab" onclick="switchTab(this.textContent)">10/08/2026</div>
   <div class="tab" onclick="switchTab(this.textContent)">Consolidado</div>
   <div class="tab" onclick="switchTab(this.textContent)">Consolidado Geral</div>
 </div>
@@ -191,24 +192,40 @@ tr:hover td{background:rgba(255,255,255,.02);}
 <script>
 
 const EXCELS={};
-EXCELS["Nano"]="excels/Analise_NANO_05082026.xlsx";
-EXCELS["Ferreti"]="excels/Analise_FERRETI_05082026.xlsx";
-EXCELS["Citrus"]="excels/Analise_CITRUS_05082026.xlsx";
-EXCELS["Jean"]="excels/Analise_JEAN_06082026.xlsx";
-EXCELS["Marcos"]="excels/Analise_MARCOS_06082026.xlsx";
-EXCELS["Flores"]="excels/Analise_FLORES_06082026.xlsx";
+EXCELS["Ferreti ida"]="excels/Analise_FERRETI IDA_06082026.xlsx";
+EXCELS["Ferreti"]="excels/Analise_FERRETI_06082026.xlsx";
+EXCELS["Rafael"]="excels/Analise_RAFAEL_06082026.xlsx";
+EXCELS["Joao victor"]="excels/Analise_JOAO VICTOR_07082026.xlsx";
+EXCELS["Joel"]="excels/Analise_JOEL_07082026.xlsx";
+EXCELS["Wesley"]="excels/Analise_WESLEY_07082026.xlsx";
+EXCELS["Priscila"]="excels/Analise_PRISCILA_07082026.xlsx";
+EXCELS["Moor"]="excels/Analise_MOOR_07082026.xlsx";
+EXCELS["Ferreti"]="excels/Analise_FERRETI_07082026.xlsx";
+EXCELS["Robson"]="excels/Analise_ROBSON_07082026.xlsx";
+EXCELS["Brian"]="excels/Analise_BRIAN_10082026.xlsx";
+EXCELS["Nhc"]="excels/Analise_NHC_10082026.xlsx";
+EXCELS["Prazito"]="excels/Analise_PRAZITO_10082026.xlsx";
 const DIAS={};
-DIAS["05/08/2026"]={ops:[
-  {nome:"Nano",tipo:"FRACIONADO",ctes:37,fat:23925.01,res:6681.56,mg:0.2793,vei:"Carreta",ocup:1.0,trecho:"Itajai-Sc X Guarulhos-Sp",c_transf:8409.79,target:5500.0,dif:2909.79,status:"FORA DO TARGET"},
-  {nome:"Ferreti",tipo:"FRACIONADO",ctes:77,fat:27390.63,res:4450.47,mg:0.1625,vei:"Carreta",ocup:0.7957,trecho:"Itajai-Sc X São Paulo-Sp",c_transf:8671.82,target:5500.0,dif:3171.82,status:"FORA DO TARGET"},
-  {nome:"Citrus",tipo:"FRACIONADO",ctes:21,fat:11739.94,res:6116.37,mg:0.521,vei:"Carreta",ocup:0.1276,trecho:"São Paulo-Sp X Itajai-Sc",c_transf:2347.13,target:3500.0,dif:-1152.87,status:"ABAIXO DO TARGET"}
-]};
 DIAS["06/08/2026"]={ops:[
-  {nome:"Jean",tipo:"FECHADO",ctes:1,fat:2905.78,res:1646.13,mg:0.5665,vei:"CTNR",ocup:0.1919,trecho:"Navegantes-Sc X Itajai-Sc",c_transf:1694.73,target:900.0,dif:794.73,status:"FORA DO TARGET"},
-  {nome:"Marcos",tipo:"FECHADO",ctes:2,fat:14027.66,res:10691.75,mg:0.7622,vei:"Van",ocup:0.5016,trecho:"Balneario Camboriu-Sc X Salvador-Ba",c_transf:9589.23,target:8500.0,dif:1089.23,status:"FORA DO TARGET"},
-  {nome:"Flores",tipo:"FECHADO",ctes:2,fat:2869.25,res:2285.02,mg:0.7964,vei:"Toco",ocup:0.9148,trecho:"Limeira-Sp X Guarulhos-Sp",c_transf:1505.0,target:1500.0,dif:5.0,status:"DENTRO DO TARGET"}
+  {nome:"Ferreti ida",tipo:"FRACIONADO",ctes:89,fat:38352.33,res:6894.84,mg:0.1798,vei:"Carreta",ocup:0.874,trecho:"Itajai-Sc X São Paulo-Sp",c_transf:10058.23,target:5500.0,dif:4558.23,status:"FORA DO TARGET"},
+  {nome:"Ferreti",tipo:"FRACIONADO",ctes:28,fat:4372.1,res:1495.64,mg:0.3421,vei:"Carreta",ocup:0.0997,trecho:"São Paulo-Sp X Itajai-Sc",c_transf:1531.56,target:3500.0,dif:-1968.44,status:"ABAIXO DO TARGET"},
+  {nome:"Rafael",tipo:"FRACIONADO",ctes:7,fat:27094.95,res:10306.06,mg:0.3804,vei:"Truck",ocup:0.2976,trecho:"Itajai-Sc X Brasilia-Df",c_transf:7856.06,target:10200.0,dif:-2343.94,status:"ABAIXO DO TARGET"}
 ]};
-const DIAS_KEYS=["05/08/2026","06/08/2026"];
+DIAS["07/08/2026"]={ops:[
+  {nome:"Joao victor",tipo:"FECHADO",ctes:2,fat:7557.23,res:5818.65,mg:0.7699,vei:"Truck",ocup:0.717,trecho:"Blumenau-Sc X Guarulhos-Sp",c_transf:4467.16,target:4100.0,dif:367.16,status:"FORA DO TARGET"},
+  {nome:"Joel",tipo:"FECHADO",ctes:3,fat:8762.64,res:6785.83,mg:0.7744,vei:"Truck",ocup:1.0,trecho:"Pomerode-Sc X Guarulhos-Sp",c_transf:4575.28,target:4100.0,dif:475.28,status:"FORA DO TARGET"},
+  {nome:"Wesley",tipo:"FRACIONADO",ctes:5,fat:38991.99,res:11887.64,mg:0.3049,vei:"Truck",ocup:0.3651,trecho:"Itajai-Sc X Serra-Es",c_transf:13005.57,target:10200.0,dif:2805.57,status:"FORA DO TARGET"},
+  {nome:"Priscila",tipo:"FRACIONADO",ctes:8,fat:39310.08,res:9541.67,mg:0.2427,vei:"Carreta",ocup:0.2571,trecho:"Itajai-Sc X Belo Horizonte-Mg",c_transf:14624.78,target:9300.0,dif:5324.78,status:"FORA DO TARGET"},
+  {nome:"Moor",tipo:"FRACIONADO",ctes:31,fat:20468.32,res:4045.72,mg:0.1977,vei:"Carreta",ocup:0.795,trecho:"Itajai-Sc X São Paulo-Sp",c_transf:8265.71,target:5500.0,dif:2765.71,status:"FORA DO TARGET"},
+  {nome:"Ferreti",tipo:"FRACIONADO",ctes:49,fat:29163.51,res:5611.18,mg:0.1924,vei:"Carreta",ocup:0.9298,trecho:"Itajai-Sc X São Paulo-Sp",c_transf:8618.47,target:5500.0,dif:3118.47,status:"FORA DO TARGET"},
+  {nome:"Robson",tipo:"FRACIONADO",ctes:26,fat:20528.8,res:6572.44,mg:0.3202,vei:"Bitruck",ocup:0.6227,trecho:"Itajai-Sc X São Paulo-Sp",c_transf:5698.77,target:4500.0,dif:1198.77,status:"FORA DO TARGET"}
+]};
+DIAS["10/08/2026"]={ops:[
+  {nome:"Brian",tipo:"FECHADO",ctes:1,fat:7357.19,res:5197.07,mg:0.7064,vei:"Truck",ocup:0.994,trecho:"Itajai-Sc X Caxias do Sul-Rs",c_transf:4982.97,target:4000.0,dif:982.97,status:"FORA DO TARGET"},
+  {nome:"Nhc",tipo:"FECHADO",ctes:2,fat:8205.28,res:4878.79,mg:0.5946,vei:"Truck",ocup:0.4051,trecho:"Navegantes-Sc X Embu Das Artes-Sp",c_transf:5739.54,target:4000.0,dif:1739.54,status:"FORA DO TARGET"},
+  {nome:"Prazito",tipo:"FRACIONADO",ctes:21,fat:6967.52,res:353.28,mg:0.0507,vei:"Truck",ocup:0.5747,trecho:"Navegantes-Sc X Guarulhos-Sp",c_transf:5362.55,target:4100.0,dif:1262.55,status:"FORA DO TARGET"}
+]};
+const DIAS_KEYS=["06/08/2026","07/08/2026","10/08/2026"];
 let activeCharts=[];
 function dc(){activeCharts.forEach(c=>c.destroy());activeCharts=[];}
 function fmt(v){return'R '+v.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});}
@@ -565,7 +582,20 @@ const HIST_MES=[
 {nome:"Citrus",dia:"05/08/2026",tipo:"FRACIONADO",vei:"Carreta",trecho:"São Paulo-Sp X Itajai-Sc",fat:11739.94,res:6116.37,mg:0.521,ocup:0.1276,ctes:21,c_transf:2347.13,target:3500.0,dif:-1152.87,status:"ABAIXO DO TARGET"},
 {nome:"Jean",dia:"06/08/2026",tipo:"FECHADO",vei:"CTNR",trecho:"Navegantes-Sc X Itajai-Sc",fat:2905.78,res:1646.13,mg:0.5665,ocup:0.1919,ctes:1,c_transf:1694.73,target:900.0,dif:794.73,status:"FORA DO TARGET"},
 {nome:"Marcos",dia:"06/08/2026",tipo:"FECHADO",vei:"Van",trecho:"Balneario Camboriu-Sc X Salvador-Ba",fat:14027.66,res:10691.75,mg:0.7622,ocup:0.5016,ctes:2,c_transf:9589.23,target:8500.0,dif:1089.23,status:"FORA DO TARGET"},
-{nome:"Flores",dia:"06/08/2026",tipo:"FECHADO",vei:"Toco",trecho:"Limeira-Sp X Guarulhos-Sp",fat:2869.25,res:2285.02,mg:0.7964,ocup:0.9148,ctes:2,c_transf:1505.0,target:1500.0,dif:5.0,status:"DENTRO DO TARGET"}
+{nome:"Flores",dia:"06/08/2026",tipo:"FECHADO",vei:"Toco",trecho:"Limeira-Sp X Guarulhos-Sp",fat:2869.25,res:2285.02,mg:0.7964,ocup:0.9148,ctes:2,c_transf:1505.0,target:1500.0,dif:5.0,status:"DENTRO DO TARGET"},
+{nome:"Ferreti ida",dia:"06/08/2026",tipo:"FRACIONADO",vei:"Carreta",trecho:"Itajai-Sc X São Paulo-Sp",fat:38352.33,res:6894.84,mg:0.1798,ocup:0.874,ctes:89,c_transf:10058.23,target:5500.0,dif:4558.23,status:"FORA DO TARGET"},
+{nome:"Ferreti",dia:"06/08/2026",tipo:"FRACIONADO",vei:"Carreta",trecho:"São Paulo-Sp X Itajai-Sc",fat:4372.1,res:1495.64,mg:0.3421,ocup:0.0997,ctes:28,c_transf:1531.56,target:3500.0,dif:-1968.44,status:"ABAIXO DO TARGET"},
+{nome:"Rafael",dia:"06/08/2026",tipo:"FRACIONADO",vei:"Truck",trecho:"Itajai-Sc X Brasilia-Df",fat:27094.95,res:10306.06,mg:0.3804,ocup:0.2976,ctes:7,c_transf:7856.06,target:10200.0,dif:-2343.94,status:"ABAIXO DO TARGET"},
+{nome:"Joao victor",dia:"07/08/2026",tipo:"FECHADO",vei:"Truck",trecho:"Blumenau-Sc X Guarulhos-Sp",fat:7557.23,res:5818.65,mg:0.7699,ocup:0.717,ctes:2,c_transf:4467.16,target:4100.0,dif:367.16,status:"FORA DO TARGET"},
+{nome:"Joel",dia:"07/08/2026",tipo:"FECHADO",vei:"Truck",trecho:"Pomerode-Sc X Guarulhos-Sp",fat:8762.64,res:6785.83,mg:0.7744,ocup:1.0,ctes:3,c_transf:4575.28,target:4100.0,dif:475.28,status:"FORA DO TARGET"},
+{nome:"Wesley",dia:"07/08/2026",tipo:"FRACIONADO",vei:"Truck",trecho:"Itajai-Sc X Serra-Es",fat:38991.99,res:11887.64,mg:0.3049,ocup:0.3651,ctes:5,c_transf:13005.57,target:10200.0,dif:2805.57,status:"FORA DO TARGET"},
+{nome:"Priscila",dia:"07/08/2026",tipo:"FRACIONADO",vei:"Carreta",trecho:"Itajai-Sc X Belo Horizonte-Mg",fat:39310.08,res:9541.67,mg:0.2427,ocup:0.2571,ctes:8,c_transf:14624.78,target:9300.0,dif:5324.78,status:"FORA DO TARGET"},
+{nome:"Moor",dia:"07/08/2026",tipo:"FRACIONADO",vei:"Carreta",trecho:"Itajai-Sc X São Paulo-Sp",fat:20468.32,res:4045.72,mg:0.1977,ocup:0.795,ctes:31,c_transf:8265.71,target:5500.0,dif:2765.71,status:"FORA DO TARGET"},
+{nome:"Ferreti",dia:"07/08/2026",tipo:"FRACIONADO",vei:"Carreta",trecho:"Itajai-Sc X São Paulo-Sp",fat:29163.51,res:5611.18,mg:0.1924,ocup:0.9298,ctes:49,c_transf:8618.47,target:5500.0,dif:3118.47,status:"FORA DO TARGET"},
+{nome:"Robson",dia:"07/08/2026",tipo:"FRACIONADO",vei:"Bitruck",trecho:"Itajai-Sc X São Paulo-Sp",fat:20528.8,res:6572.44,mg:0.3202,ocup:0.6227,ctes:26,c_transf:5698.77,target:4500.0,dif:1198.77,status:"FORA DO TARGET"},
+{nome:"Brian",dia:"10/08/2026",tipo:"FECHADO",vei:"Truck",trecho:"Itajai-Sc X Caxias do Sul-Rs",fat:7357.19,res:5197.07,mg:0.7064,ocup:0.994,ctes:1,c_transf:4982.97,target:4000.0,dif:982.97,status:"FORA DO TARGET"},
+{nome:"Nhc",dia:"10/08/2026",tipo:"FECHADO",vei:"Truck",trecho:"Navegantes-Sc X Embu Das Artes-Sp",fat:8205.28,res:4878.79,mg:0.5946,ocup:0.4051,ctes:2,c_transf:5739.54,target:4000.0,dif:1739.54,status:"FORA DO TARGET"},
+{nome:"Prazito",dia:"10/08/2026",tipo:"FRACIONADO",vei:"Truck",trecho:"Navegantes-Sc X Guarulhos-Sp",fat:6967.52,res:353.28,mg:0.0507,ocup:0.5747,ctes:21,c_transf:5362.55,target:4100.0,dif:1262.55,status:"FORA DO TARGET"}
 ];
 const PERIODO_INI="2026-07-28";
 const PERIODO_FIM="2026-08-11";
