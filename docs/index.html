@@ -162,13 +162,15 @@ tr:hover td{background:rgba(255,255,255,.02);}
 /* duas tabelas: thead fixa + tbody em div scrollável */
 .cg-t{width:100%;border-collapse:collapse;table-layout:fixed;}
 .cg-t thead th{background:var(--bg2);padding:10px 12px;color:var(--sub);font-weight:700;font-size:.63rem;text-transform:uppercase;letter-spacing:.45px;white-space:nowrap;border-bottom:1px solid var(--border);}
-.cg-body-scroll{overflow-y:auto;overflow-x:hidden;scrollbar-width:thin;}
-.cg-body-scroll::-webkit-scrollbar{width:6px;}
-.cg-body-scroll::-webkit-scrollbar-track{background:rgba(255,255,255,.03);}
-.cg-body-scroll::-webkit-scrollbar-thumb{background:rgba(148,163,184,.3);border-radius:3px;}
+.cg-body-scroll{overflow-y:auto;overflow-x:hidden;scrollbar-width:thin;scrollbar-color:rgba(100,120,140,.35) transparent;}
+.cg-body-scroll::-webkit-scrollbar{width:8px;background:transparent;}
+.cg-body-scroll::-webkit-scrollbar-track{background:transparent;}
+.cg-body-scroll::-webkit-scrollbar-thumb{background:rgba(100,120,140,.35);border-radius:4px;}
 .cg-body-scroll::-webkit-scrollbar-thumb:hover{background:rgba(148,163,184,.55);}
+/* gutter-pad: fundo deve combinar com a linha correspondente */
+.cg-gutter-head{background:var(--bg2);}
+.cg-gutter-tot{background:rgba(244,117,35,.07);border-top:2px solid rgba(244,117,35,.3);}
 /* linha TOTAL */
-.cg-total-table{}
 .cg-total-row td{padding:10px 12px;background:rgba(244,117,35,.07);border-top:2px solid rgba(244,117,35,.3);font-weight:700;font-size:.8rem;}
 .cg-total-lbl{color:var(--orange);font-size:.72rem;font-weight:800;text-transform:uppercase;letter-spacing:.5px;}
 .cg-total-val{font-variant-numeric:tabular-nums;}
@@ -778,19 +780,20 @@ function _geralRender(){
         +'<span class="cg-day-label">📅 '+dia+'</span>'
         +'<span class="cg-day-ops">'+ops.length+' operaç'+(ops.length>1?'ões':'ão')+'</span>'
       +'</div>'
-      // thead fixa acima do scroll (padding-right ajustado dinamicamente em _geralFixAlign)
-      +'<div class="cg-gutter-pad">'
+      // thead fixa acima do scroll (bg e padding-right ajustados via classe + JS)
+      +'<div class="cg-gutter-pad cg-gutter-head">'
         +'<table class="cg-t"><colgroup>'+COG+'</colgroup><thead>'+TH_ROW+'</thead></table>'
       +'</div>'
       // corpo scrollável
       +'<div class="cg-body-scroll" style="max-height:'+bodyH+'px;">'
         +'<table class="cg-t"><colgroup>'+COG+'</colgroup><tbody>'+opRows+'</tbody></table>'
       +'</div>'
-      // linha TOTAL abaixo do scroll (padding-right ajustado dinamicamente em _geralFixAlign)
-      +'<div class="cg-gutter-pad">'
+      // linha TOTAL abaixo do scroll (bg e padding-right via classe + JS)
+      // 12 colunas: colspan=5 cobre Operador,Tipo,Veículo,Trecho,CTEs → fat=col6, res=col7, mg=col8, ctes=col9, empty=cols10-12
+      +'<div class="cg-gutter-pad cg-gutter-tot">'
         +'<table class="cg-t cg-total-table"><colgroup>'+COG+'</colgroup>'
           +'<tbody><tr class="cg-total-row">'
-            +'<td class="cg-total-lbl" colspan="4">📊 TOTAL DO DIA</td>'
+            +'<td class="cg-total-lbl" colspan="5">📊 TOTAL DO DIA</td>'
             +'<td class="cg-num cg-num-fat cg-total-val">'+fmt(df.fat)+'</td>'
             +'<td class="cg-num '+mgnum(dm)+' cg-total-val">'+fmt(df.res)+'</td>'
             +'<td class="cg-num '+mgcl(dm)+' cg-total-val">'+pct(dm)+'</td>'
