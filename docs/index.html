@@ -153,6 +153,25 @@ tr:hover td{background:rgba(255,255,255,.02);}
 .cg-num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap;}
 .dl-btn-hist{background:rgba(68,114,196,.18);color:#7ba8d9;border:1px solid rgba(68,114,196,.35);border-radius:5px;padding:3px 8px;font-size:.68rem;cursor:pointer;white-space:nowrap;transition:background .2s;}
 .dl-btn-hist:hover{background:rgba(68,114,196,.38);}
+/* ── Consolidado Geral — blocos por dia ── */
+.cg-blocos-wrap{display:flex;flex-direction:column;gap:18px;}
+.cg-day-block{border:1px solid var(--border);border-radius:10px;overflow:hidden;}
+.cg-day-header-bar{display:flex;align-items:center;gap:10px;background:#0d1826;padding:10px 14px;border-bottom:1px solid var(--border);}
+.cg-day-label{font-weight:700;font-size:.82rem;color:var(--fg);}
+.cg-day-ops{font-size:.72rem;color:var(--sub);background:rgba(255,255,255,.06);padding:2px 8px;border-radius:20px;}
+.cg-scroll-hint{font-size:.65rem;color:rgba(148,163,184,.5);margin-left:auto;}
+.cg-ops-scroll{overflow-y:auto;overflow-x:auto;}
+.cg-ops-scroll::-webkit-scrollbar{width:5px;height:5px;}
+.cg-ops-scroll::-webkit-scrollbar-track{background:transparent;}
+.cg-ops-scroll::-webkit-scrollbar-thumb{background:rgba(148,163,184,.25);border-radius:3px;}
+.cg-ops-scroll::-webkit-scrollbar-thumb:hover{background:rgba(148,163,184,.45);}
+.cg-table-day{table-layout:fixed;width:100%;}
+.cg-table-day thead{position:sticky;top:0;z-index:2;}
+.cg-total-bar{display:flex;align-items:center;gap:20px;padding:10px 14px;background:rgba(244,117,35,.06);border-top:1px solid rgba(244,117,35,.2);}
+.cg-total-lbl{font-size:.7rem;font-weight:800;text-transform:uppercase;letter-spacing:.6px;color:var(--orange);min-width:44px;}
+.cg-total-item{display:flex;flex-direction:column;gap:1px;}
+.cg-tlab{font-size:.6rem;color:var(--sub);text-transform:uppercase;letter-spacing:.4px;}
+.cg-tval{font-size:.82rem;font-weight:700;font-variant-numeric:tabular-nums;}
 .cg-num-fat{color:#7ba8d9;}
 .cg-td-nome{font-weight:600;}
 .cg-td-vei{color:var(--sub);}
@@ -712,24 +731,34 @@ function _geralRender(){
   }
   const destaques='<div class="cg-dest-row">'+destCard(melhor,'melhor')+destCard(pior,'pior')+'</div>';
 
-  // Table
-  let trows='';
+  // Tabela por dia — cada dia tem scroller (máx 4 ops visíveis) + linha TOTAL separada
+  const TH='<thead><tr>'
+    +'<th style="width:13%">Operador</th><th style="width:10%">Tipo</th><th style="width:9%">Veículo</th>'
+    +'<th style="width:5%;text-align:right;">CTEs</th>'
+    +'<th style="width:12%;text-align:right;">Faturamento</th>'
+    +'<th style="width:12%;text-align:right;">Resultado</th>'
+    +'<th style="width:7%;text-align:right;">Margem</th>'
+    +'<th style="width:16%">C.Transf / Target</th>'
+    +'<th style="width:8%;text-align:right;">Dif</th>'
+    +'<th style="width:11%">Status</th>'
+    +'<th style="width:6%">Detalhe</th>'
+    +'</tr></thead>';
+
+  const ROW_H=44; // altura estimada de cada linha em px
+  const MAX_VIS=4; // linhas visíveis antes do scroll
+
+  let blocos='';
   dias.forEach(dia=>{
     const ops=HIST.filter(o=>o.dia===dia);
-    const df=ops.reduce((a,o)=>({fat:a.fat+o.fat,res:a.res+o.res}),{fat:0,res:0});
+    const df=ops.reduce((a,o)=>({fat:a.fat+o.fat,res:a.res+o.res,ctes:a.ctes+o.ctes}),{fat:0,res:0,ctes:0});
     const dm=df.fat?df.res/df.fat:0;
-    trows+='<tr class="cg-day-row">'
-      +'<td colspan="4"><span class="cg-day-label">📅 '+dia+'</span>'
-      +'<span class="cg-day-ops">'+ops.length+' op'+(ops.length>1?'s':'')+'</span></td>'
-      +'<td class="cg-num cg-num-fat">'+fmt(df.fat)+'</td>'
-      +'<td class="cg-num '+mgnum(dm)+'">'+fmt(df.res)+'</td>'
-      +'<td class="cg-num '+mgcl(dm)+'">'+pct(dm)+'</td>'
-      +'<td colspan="3"></td></tr>';
+
+    let opRows='';
     ops.forEach(function(o,i){
       const stIcon=o.status==='DENTRO DO TARGET'?'✔':o.status==='FORA DO TARGET'?'✗':'↓';
       const stCls =o.status==='DENTRO DO TARGET'?'cg-st-ok':o.status==='FORA DO TARGET'?'cg-st-bad':'cg-st-warn';
       const tipoCls=o.tipo==='FRACIONADO'?'cg-tipo-frac':'cg-tipo-fech';
-      trows+='<tr class="cg-op-row'+(i%2===1?' cg-alt':'')+'">'
+      opRows+='<tr class="cg-op-row'+(i%2===1?' cg-alt':'')+'">'
         +'<td class="cg-td-nome">'+o.nome+'</td>'
         +'<td><span class="'+tipoCls+'">'+o.tipo+'</span></td>'
         +'<td class="cg-td-vei">'+o.vei+'</td>'
@@ -743,14 +772,33 @@ function _geralRender(){
         +'<td><button class="dl-btn-hist" onclick="dlHistExcel(\''+o.nome+'\',\''+o.dia+'\')">⬇ XLS</button></td>'
         +'</tr>';
     });
+
+    const scrollH=Math.min(ops.length,MAX_VIS)*ROW_H;
+    const hasScroll=ops.length>MAX_VIS;
+
+    blocos+='<div class="cg-day-block">'
+      // cabeçalho do dia
+      +'<div class="cg-day-header-bar">'
+        +'<span class="cg-day-label">📅 '+dia+'</span>'
+        +'<span class="cg-day-ops">'+ops.length+' operaç'+(ops.length>1?'ões':'ão')+'</span>'
+        +(hasScroll?'<span class="cg-scroll-hint">↕ scroll</span>':'')
+      +'</div>'
+      // tabela com scroll
+      +'<div class="cg-ops-scroll" style="max-height:'+scrollH+'px;">'
+        +'<table class="cg-table cg-table-day">'+TH+'<tbody>'+opRows+'</tbody></table>'
+      +'</div>'
+      // linha TOTAL separada, fora do scroll
+      +'<div class="cg-total-bar">'
+        +'<span class="cg-total-lbl">TOTAL</span>'
+        +'<span class="cg-total-item"><span class="cg-tlab">Faturamento</span><span class="cg-tval cg-num-fat">'+fmt(df.fat)+'</span></span>'
+        +'<span class="cg-total-item"><span class="cg-tlab">Resultado</span><span class="cg-tval '+mgnum(dm)+'">'+fmt(df.res)+'</span></span>'
+        +'<span class="cg-total-item"><span class="cg-tlab">Margem</span><span class="cg-tval '+mgcl(dm)+'">'+pct(dm)+'</span></span>'
+        +'<span class="cg-total-item"><span class="cg-tlab">CTEs</span><span class="cg-tval">'+df.ctes+'</span></span>'
+      +'</div>'
+    +'</div>';
   });
 
-  const tabela='<div class="cg-table-wrap"><table class="cg-table">'
-    +'<thead><tr>'
-    +'<th>Operador</th><th>Tipo</th><th>Veículo</th><th style="text-align:right;">CTEs</th>'
-    +'<th style="text-align:right;">Faturamento</th><th style="text-align:right;">Resultado</th><th style="text-align:right;">Margem</th>'
-    +'<th>C.Transf / Target</th><th style="text-align:right;">Dif</th><th>Status</th><th>Detalhe</th>'
-    +'</tr></thead><tbody>'+trows+'</tbody></table></div>';
+  const tabela='<div class="cg-blocos-wrap">'+blocos+'</div>';
 
   el2.innerHTML=kpis+charts+destaques+tabela;
 
