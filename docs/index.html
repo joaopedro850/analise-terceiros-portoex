@@ -175,6 +175,7 @@ tr:hover td{background:rgba(255,255,255,.02);}
 .cg-num-fat{color:#7ba8d9;}
 .cg-td-nome{font-weight:600;}
 .cg-td-vei{color:var(--sub);}
+.cg-td-trecho{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--sub);font-size:.72rem;}
 .cg-td-ct{font-size:.75rem;color:var(--sub);white-space:nowrap;}
 .cg-ct-sep{margin:0 4px;opacity:.4;}
 
@@ -732,11 +733,11 @@ function _geralRender(){
   const destaques='<div class="cg-dest-row">'+destCard(melhor,'melhor')+destCard(pior,'pior')+'</div>';
 
   // Duas tabelas separadas: thead fixa + tbody scrollável
-  // Larguras em % (idênticas) → visual proporcional exatamente como antes
-  const COLS=['13%','10%','9%','5%','12%','12%','7%','16%','8%','11%','6%'];
-  const ALIGNS=['left','left','left','right','right','right','right','left','right','left','left'];
+  // 12 colunas: adicionada coluna Trecho após Veículo
+  const COLS=['11%','8%','7%','14%','4%','10%','10%','6%','14%','7%','11%','5%'];
+  const ALIGNS=['left','left','left','left','right','right','right','right','left','right','left','left'];
   const COG=COLS.map(w=>'<col style="width:'+w+';">').join('');
-  const TH_LABELS=['Operador','Tipo','Veículo','CTEs','Faturamento','Resultado','Margem','C.Transf / Target','Dif','Status','Detalhe'];
+  const TH_LABELS=['Operador','Tipo','Veículo','Trecho','CTEs','Faturamento','Resultado','Margem','C.Transf / Target','Dif','Status','Detalhe'];
   const TH_ROW='<tr>'+TH_LABELS.map((l,i)=>'<th style="text-align:'+ALIGNS[i]+';">'+l+'</th>').join('')+'</tr>';
 
   const ROW_H=44;
@@ -758,6 +759,7 @@ function _geralRender(){
         +'<td class="cg-td-nome">'+o.nome+'</td>'
         +'<td><span class="'+tipoCls+'">'+o.tipo+'</span></td>'
         +'<td class="cg-td-vei">'+o.vei+'</td>'
+        +'<td class="cg-td-trecho" title="'+o.trecho+'">'+o.trecho+'</td>'
         +'<td class="cg-num">'+o.ctes+'</td>'
         +'<td class="cg-num cg-num-fat">'+fmt(o.fat)+'</td>'
         +'<td class="cg-num '+mgnum(o.mg)+'">'+fmt(o.res)+'</td>'
