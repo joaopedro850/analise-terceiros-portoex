@@ -160,8 +160,7 @@ tr:hover td{background:rgba(255,255,255,.02);}
 .cg-day-label{font-weight:700;font-size:.82rem;color:var(--fg);}
 .cg-day-ops{font-size:.72rem;color:var(--sub);background:rgba(255,255,255,.06);padding:2px 8px;border-radius:20px;}
 /* duas tabelas: thead fixa + tbody em div scrollável */
-.cg-day-outer{overflow-x:auto;}
-.cg-t{border-collapse:collapse;table-layout:fixed;}
+.cg-t{width:100%;border-collapse:collapse;table-layout:fixed;}
 .cg-t thead th{background:var(--bg2);padding:10px 12px;color:var(--sub);font-weight:700;font-size:.63rem;text-transform:uppercase;letter-spacing:.45px;white-space:nowrap;border-bottom:1px solid var(--border);}
 .cg-body-scroll{overflow-y:auto;overflow-x:hidden;scrollbar-width:thin;}
 .cg-body-scroll::-webkit-scrollbar{width:6px;}
@@ -169,7 +168,7 @@ tr:hover td{background:rgba(255,255,255,.02);}
 .cg-body-scroll::-webkit-scrollbar-thumb{background:rgba(148,163,184,.3);border-radius:3px;}
 .cg-body-scroll::-webkit-scrollbar-thumb:hover{background:rgba(148,163,184,.55);}
 /* linha TOTAL */
-.cg-total-table{border-collapse:collapse;table-layout:fixed;}
+.cg-total-table{}
 .cg-total-row td{padding:10px 12px;background:rgba(244,117,35,.07);border-top:2px solid rgba(244,117,35,.3);font-weight:700;font-size:.8rem;}
 .cg-total-lbl{color:var(--orange);font-size:.72rem;font-weight:800;text-transform:uppercase;letter-spacing:.5px;}
 .cg-total-val{font-variant-numeric:tabular-nums;}
@@ -732,26 +731,23 @@ function _geralRender(){
   }
   const destaques='<div class="cg-dest-row">'+destCard(melhor,'melhor')+destCard(pior,'pior')+'</div>';
 
-  // Duas tabelas separadas: thead fixa + tbody em div scrollável
-  // Larguras fixas em px idênticas nas duas tabelas — garante alinhamento perfeito
-  const COL_W=[120,110,95,55,115,115,70,155,80,130,65];
-  const TW=COL_W.reduce((a,b)=>a+b,0); // total px = 1110
-  const TWS=TW+'px';
-  const COG=COL_W.map(w=>'<col style="width:'+w+'px;">').join('');
+  // Duas tabelas separadas: thead fixa + tbody scrollável
+  // Larguras em % (idênticas) → visual proporcional exatamente como antes
+  const COLS=['13%','10%','9%','5%','12%','12%','7%','16%','8%','11%','6%'];
+  const ALIGNS=['left','left','left','right','right','right','right','left','right','left','left'];
+  const COG=COLS.map(w=>'<col style="width:'+w+';">').join('');
   const TH_LABELS=['Operador','Tipo','Veículo','CTEs','Faturamento','Resultado','Margem','C.Transf / Target','Dif','Status','Detalhe'];
-  const TH_ALIGNS=['left','left','left','right','right','right','right','left','right','left','left'];
-  const TH_ROW='<tr>'+TH_LABELS.map((l,i)=>'<th style="text-align:'+TH_ALIGNS[i]+';">'+l+'</th>').join('')+'</tr>';
+  const TH_ROW='<tr>'+TH_LABELS.map((l,i)=>'<th style="text-align:'+ALIGNS[i]+';">'+l+'</th>').join('')+'</tr>';
 
   const ROW_H=44;
   const MAX_VIS=4;
-  const SB=6; // scrollbar width px (webkit fixado em 6px via CSS)
 
   let blocos='';
   dias.forEach(dia=>{
     const ops=HIST.filter(o=>o.dia===dia);
     const df=ops.reduce((a,o)=>({fat:a.fat+o.fat,res:a.res+o.res,ctes:a.ctes+o.ctes}),{fat:0,res:0,ctes:0});
     const dm=df.fat?df.res/df.fat:0;
-    const scrolls=ops.length>MAX_VIS; // vai mostrar scrollbar?
+    const scrolls=ops.length>MAX_VIS;
 
     let opRows='';
     ops.forEach(function(o,i){
@@ -774,44 +770,35 @@ function _geralRender(){
     });
 
     const bodyH=Math.min(ops.length,MAX_VIS)*ROW_H;
-    // Quando tem scrollbar, thead precisa de padding-right igual ao scrollbar
-    // para que as colunas fiquem alinhadas com o tbody
-    const thPad=scrolls?'padding-right:'+SB+'px;':'';
+    // padding-right no thead/total = largura do scrollbar (6px via CSS ::-webkit-scrollbar)
+    // só quando a div de corpo vai scrollar, para manter colunas alinhadas
+    const thPad=scrolls?'padding-right:6px;box-sizing:border-box;':'';
 
     blocos+='<div class="cg-day-block">'
       +'<div class="cg-day-header-bar">'
         +'<span class="cg-day-label">📅 '+dia+'</span>'
         +'<span class="cg-day-ops">'+ops.length+' operaç'+(ops.length>1?'ões':'ão')+'</span>'
       +'</div>'
-      +'<div class="cg-day-outer">'
-        // ── Cabeçalho (thead separado — nunca scrolls)
-        +'<div style="'+thPad+'">'
-          +'<table class="cg-t" style="width:'+TWS+';">'
-            +'<colgroup>'+COG+'</colgroup>'
-            +'<thead>'+TH_ROW+'</thead>'
-          +'</table>'
-        +'</div>'
-        // ── Corpo scrollável (tbody separado)
-        +'<div class="cg-body-scroll" style="max-height:'+bodyH+'px;">'
-          +'<table class="cg-t" style="width:'+TWS+';">'
-            +'<colgroup>'+COG+'</colgroup>'
-            +'<tbody>'+opRows+'</tbody>'
-          +'</table>'
-        +'</div>'
-        // ── TOTAL abaixo do scroll
-        +'<div style="'+thPad+'">'
-          +'<table class="cg-t cg-total-table" style="width:'+TWS+';">'
-            +'<colgroup>'+COG+'</colgroup>'
-            +'<tbody><tr class="cg-total-row">'
-              +'<td class="cg-total-lbl" colspan="4">📊 TOTAL DO DIA</td>'
-              +'<td class="cg-num cg-num-fat cg-total-val">'+fmt(df.fat)+'</td>'
-              +'<td class="cg-num '+mgnum(dm)+' cg-total-val">'+fmt(df.res)+'</td>'
-              +'<td class="cg-num '+mgcl(dm)+' cg-total-val">'+pct(dm)+'</td>'
-              +'<td class="cg-total-val" style="color:var(--sub);font-size:.72rem;">'+df.ctes+' CTEs</td>'
-              +'<td colspan="3"></td>'
-            +'</tr></tbody>'
-          +'</table>'
-        +'</div>'
+      // thead fixa acima do scroll
+      +'<div style="'+thPad+'">'
+        +'<table class="cg-t"><colgroup>'+COG+'</colgroup><thead>'+TH_ROW+'</thead></table>'
+      +'</div>'
+      // corpo scrollável
+      +'<div class="cg-body-scroll" style="max-height:'+bodyH+'px;">'
+        +'<table class="cg-t"><colgroup>'+COG+'</colgroup><tbody>'+opRows+'</tbody></table>'
+      +'</div>'
+      // linha TOTAL abaixo do scroll
+      +'<div style="'+thPad+'">'
+        +'<table class="cg-t cg-total-table"><colgroup>'+COG+'</colgroup>'
+          +'<tbody><tr class="cg-total-row">'
+            +'<td class="cg-total-lbl" colspan="4">📊 TOTAL DO DIA</td>'
+            +'<td class="cg-num cg-num-fat cg-total-val">'+fmt(df.fat)+'</td>'
+            +'<td class="cg-num '+mgnum(dm)+' cg-total-val">'+fmt(df.res)+'</td>'
+            +'<td class="cg-num '+mgcl(dm)+' cg-total-val">'+pct(dm)+'</td>'
+            +'<td class="cg-total-val" style="color:var(--sub);font-size:.72rem;">'+df.ctes+' CTEs</td>'
+            +'<td colspan="3"></td>'
+          +'</tr></tbody>'
+        +'</table>'
       +'</div>'
     +'</div>';
   });
