@@ -163,8 +163,8 @@ tr:hover td{background:rgba(255,255,255,.02);}
 .cg-table-day{border-collapse:collapse;table-layout:fixed;}
 .cg-table-day thead{display:table;width:100%;table-layout:fixed;}
 .cg-table-day thead th{background:var(--bg2);padding:10px 12px;color:var(--sub);font-weight:700;font-size:.63rem;text-transform:uppercase;letter-spacing:.45px;white-space:nowrap;border-bottom:1px solid var(--border);}
-.cg-tbody-scroll{display:block;overflow-y:auto;overflow-x:hidden;width:100%;}
-.cg-tbody-scroll tr{display:table;width:100%;table-layout:fixed;}
+.cg-tbody-scroll{display:block;overflow-y:auto;overflow-x:visible;}
+.cg-tbody-scroll tr{display:table;table-layout:fixed;}
 .cg-tbody-scroll::-webkit-scrollbar{width:6px;}
 .cg-tbody-scroll::-webkit-scrollbar-track{background:rgba(255,255,255,.03);}
 .cg-tbody-scroll::-webkit-scrollbar-thumb{background:rgba(148,163,184,.3);border-radius:3px;}
@@ -757,7 +757,7 @@ function _geralRender(){
       const stCls =o.status==='DENTRO DO TARGET'?'cg-st-ok':o.status==='FORA DO TARGET'?'cg-st-bad':'cg-st-warn';
       const tipoCls=o.tipo==='FRACIONADO'?'cg-tipo-frac':'cg-tipo-fech';
       const tdS=COL_W.map(w=>'style="width:'+w+'px;min-width:'+w+'px;"');
-      opRows+='<tr class="cg-op-row'+(i%2===1?' cg-alt':'')+'">'
+      opRows+='<tr class="cg-op-row'+(i%2===1?' cg-alt':'')+'" style="width:'+TABLE_W+';">'
         +'<td '+tdS[0]+' class="cg-td-nome">'+o.nome+'</td>'
         +'<td '+tdS[1]+'><span class="'+tipoCls+'">'+o.tipo+'</span></td>'
         +'<td '+tdS[2]+' class="cg-td-vei">'+o.vei+'</td>'
@@ -785,7 +785,7 @@ function _geralRender(){
         +'<table class="cg-table cg-table-day" style="width:'+TABLE_W+';min-width:'+TABLE_W+';">'
           +'<colgroup>'+COG+'</colgroup>'
           +'<thead>'+TH_ROW+'</thead>'
-          +'<tbody class="cg-tbody-scroll" style="max-height:'+bodyH+'px;">'
+          +'<tbody class="cg-tbody-scroll" style="max-height:'+bodyH+'px;width:'+TABLE_W+';">'
             +opRows
           +'</tbody>'
         +'</table>'
