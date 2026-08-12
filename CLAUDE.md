@@ -14,7 +14,7 @@ REGRA ABSOLUTA: Seguir exatamente este processo. Se quiser tentar algo diferente
 1. Login nos sistemas necessários (AZ / PEX / PTX)
 2. Tela 147 → interceptar `Brudam.post` → capturar JSON via CHUNK method
 3. Salvar JSONs no workspace: `brudam_SISTEMA_data_DDMMAAAA.json`
-4. Coletar c_transf via hidden fields (`manifestFreigth + manifestToll + manifestAdvanceMoney`)
+4. Coletar c_transf via hidden fields da **página do manifesto** (`manifestFreigth + manifestToll + manifestAdvanceMoney`) — NUNCA somar r[18]+r[19]+r[20] da 147 (a 147 distribui por CTE e pode incluir custos extras, distorcendo o valor real contratado)
 
 ### ETAPA B — Gerar Excels individuais
 1. Copiar JSONs para Downloads via PowerShell
@@ -48,13 +48,20 @@ REGRA ABSOLUTA: Seguir exatamente este processo. Se quiser tentar algo diferente
 
 ---
 
-## 📊 FONTE DE TARGET — ORDEM DE CONSULTA (ATUALIZADO 31/07/2026)
+## 📊 FONTE DE TARGET — ORDEM DE CONSULTA (ATUALIZADO 11/08/2026)
 
-Sempre consultar nesta ordem antes de parar e perguntar JÃO:
+**Exceções — usar valor fixo sempre (nunca consultar):**
+- Agregados RENATO (QSU-6I78): Itajaí→SP=R$5.200 | SP→Itajaí=R$1.850
+- Agregados RICARDO (AJQ-3G51 / RXT-7G93): Itajaí→SP=R$5.100 | SP→Itajaí=R$1.100
+- Frota própria: target definido por JÃO caso a caso
+
+**Para todos os demais, consultar nesta ordem:**
 1. Aba **Target** do Excel template (Analise Fechado.xlsx / Analise Fracionado.xlsx)
-2. Planilha online CSV: `https://docs.google.com/spreadsheets/d/e/2PACX-1vTiG4q9OrjUP5Kw5IQh9BGcqEMlPjjXcB9w_WoORr9Bk1bNPLL_Y9T1_2UazFPm-gwOc_68yKqzSW02/pub?gid=464474697&single=true&output=csv`
-3. Planilha online (edição — mesma base): `https://docs.google.com/spreadsheets/d/17PUQoGTZwPCmno3QwxrefoxLA3rFcEGVjm4A88m7yzA/edit?gid=464474697`
-4. ⛔ **Só parar e perguntar JÃO** se não encontrar em nenhuma das 3 fontes acima
+   - **Se encontrar → usar direto. NÃO consultar planilha online.**
+2. **Só se não encontrar no Excel** → consultar planilha online CSV:
+   `https://docs.google.com/spreadsheets/d/e/2PACX-1vTiG4q9OrjUP5Kw5IQh9BGcqEMlPjjXcB9w_WoORr9Bk1bNPLL_Y9T1_2UazFPm-gwOc_68yKqzSW02/pub?gid=464474697&single=true&output=csv`
+   - Se encontrar online → cadastrar no Excel template (SaveAs C:\Temp → Copy-Item) e prosseguir
+3. ⛔ **Só parar e perguntar JÃO** se não encontrar nem no Excel **nem** na planilha online
 
 ---
 
@@ -336,9 +343,14 @@ Cap.peso mapeado automaticamente: Van=1200 | 3/4=3500 | Toco=6000 | Truck=11000 
 ### PASSO 4 — COLETAR MOTORISTA, PLACA E CUSTO
 1. Clicar no número da **1ª minuta** → nova aba abre com detalhes da minuta
 2. Na minuta, localizar **"Campo Manifesto"** → clicar no número do manifesto → nova aba abre
-3. Na página do manifesto, coletar **3 campos**:
-   - **MOTORISTA(S)**: nome do motorista da operação
-   - **VEICULO**: placa do veículo (ex: EFW-2B36)
+3. Na página do manifesto, coletar **3 campos** via JS:
+   - **MOTORISTA TERCEIRO** (pessoa física — condutor real):
+     ```javascript
+     var sel = document.querySelector('select[name="motorista_terceiro"]');
+     sel ? sel.options[sel.selectedIndex].text.trim() : 'N/A';
+     ```
+     ⚠️ BUG #14: este campo retorna o nome do **motorista/condutor** (pessoa física), NÃO o nome da empresa. Usar SEMPRE este campo. NÃO usar r[17] do JSON (que é a empresa/transportadora).
+   - **VEICULO** (placa): `select[name="entrega_resp_veiculo"]` → selectedIndex
    - **CUSTOS MANIFESTO**: descer até esta seção → ver campos FRETE + PEDÁGIO + ADIANTAMENTO → anotar o **"Total: R$"** — este é o valor da contratação do terceiro
 4. **AVISAR JÃO** com os 3 dados coletados
 
@@ -348,7 +360,8 @@ Cap.peso mapeado automaticamente: Van=1200 | 3/4=3500 | Toco=6000 | Truck=11000 
 3. **Salvar no cache** (`placas_cache.json`): `placa + modelo + motorista_usual + sistema`
 4. Se placa já estava no cache → confirmar modelo bate; se diferir → usar o modelo que JÃO informou e atualizar cache
 
-⚠️ **IMPORTANTE**: Os campos MOTORISTA(S) e VEICULO são dropdowns — sempre pegar o valor **selecionado** (selected option).
+⚠️ **IMPORTANTE**: Os campos MOTORISTA TERCEIRO e VEICULO são dropdowns — sempre pegar o valor **selecionado** (selected option) via JS.
+⚠️ **NUNCA** usar o nome da empresa (r[17] do JSON) como motorista — ver BUG #14.
 
 ### PASSO 6 — TARGET
 1. Montar CONCATENADO: `[Trecho] [Tipo Veículo]` (ex: "Blumenau-SC X Guarulhos-Sp Carreta")
@@ -404,9 +417,14 @@ Cap.peso mapeado automaticamente: Van=1200 | 3/4=3500 | Toco=6000 | Truck=11000 
 ### PASSO 3 — COLETAR MOTORISTA, PLACA E CUSTO
 1. Clicar na **1ª minuta** → abre página da minuta
 2. Na minuta, clicar no número do **manifesto** → abre página do manifesto
-3. Coletar os **3 campos** (valores SELECIONADOS nos dropdowns via JS):
-   - **MOTORISTA(S)** → `select[name="motorista_terceiro"]` → selectedIndex
-   - **VEÍCULO** → `select[name="entrega_resp_veiculo"]` → selectedIndex
+3. Coletar os **3 campos** via JS:
+   - **MOTORISTA TERCEIRO** (condutor — pessoa física):
+     ```javascript
+     var sel = document.querySelector('select[name="motorista_terceiro"]');
+     sel ? sel.options[sel.selectedIndex].text.trim() : 'N/A';
+     ```
+     ⚠️ BUG #14: usar SEMPRE este campo. NÃO usar r[17] do JSON (empresa). NÃO inventar nome a partir da transportadora.
+   - **VEÍCULO** → `select[name="entrega_resp_veiculo"]` → selectedIndex → placa
    - **CUSTOS MANIFESTO** → campo **Total: R$** (FRETE + PEDÁGIO + ADIANTAMENTO)
 4. **AVISAR JÃO** com os 3 dados
 
@@ -508,12 +526,15 @@ Mapeamento cap_peso por modelo:
 - Truck → `Truck` / 11.000 kg
 - Carreta / Bitruck → `Carreta` / 22.000 kg
 
-## FONTE DO TARGET — REGRA FUNDAMENTAL
+## FONTE DO TARGET — REGRA FUNDAMENTAL (ATUALIZADO 11/08/2026)
 
 **1ª ANÁLISE (individual por manifesto — Analise Fechado.xlsx / Analise Fracionado.xlsx):**
-- Target SEMPRE buscado na **aba "Target" do próprio Excel template**
+- Target buscado na **aba "Target" do próprio Excel template**
 - Colocar o CONCATENADO em N19 da aba Análise — o Excel faz a busca automaticamente via fórmula
-- Se o trecho não existir na aba Target do Excel: informar JÃO e aguardar instrução
+- **Se encontrar no Excel → usar direto. NÃO acessar planilha online.**
+- Se o trecho NÃO existir na aba Target do Excel → aí sim consultar planilha online:
+  - Se encontrar online → cadastrar no Excel template (SaveAs C:\Temp → Copy-Item) e prosseguir
+  - Se não encontrar online → parar e avisar JÃO
 
 **2ª ANÁLISE (consolidação — gerar_analise_terceiros.py):**
 - Target SEMPRE buscado na **planilha online Google Sheets** (CSV publicado)
@@ -630,13 +651,14 @@ def br2val(s):
 
 **Sintoma**: Craudin parou e avisou JÃO sobre target faltando, mas o target já estava na planilha online.
 
-**REGRA PERMANENTE — Fluxo de verificação de Target (ATUALIZADO 13/07/2026):**
+**REGRA PERMANENTE — Fluxo de verificação de Target (ATUALIZADO 11/08/2026):**
 1. Verificar na aba Target do Excel template
-2. **Se não encontrar** → verificar na planilha online (CSV):
+2. **Se encontrar → usar direto. NÃO acessar planilha online.** (economia de tokens)
+3. **Se não encontrar no Excel** → aí sim verificar na planilha online (CSV):
    `https://docs.google.com/spreadsheets/d/e/2PACX-1vTiG4q9OrjUP5Kw5IQh9BGcqEMlPjjXcB9w_WoORr9Bk1bNPLL_Y9T1_2UazFPm-gwOc_68yKqzSW02/pub?gid=464474697&single=true&output=csv`
    - Header linha 4 (i=4), CONCATENADO col 2, TARGET FINAL col 5
-3. **Se encontrar online** → cadastrar no Excel template via COM **com o valor da planilha online** (SaveAs C:\Temp → Copy-Item de volta ao template) e prosseguir. A planilha online é a fonte de autorização.
-4. ⛔ **Só parar e avisar JÃO** se não encontrar nem no Excel **nem** na planilha online — aguardar instrução antes de prosseguir
+4. **Se encontrar online** → cadastrar no Excel template via COM (SaveAs C:\Temp → Copy-Item) e prosseguir
+5. ⛔ **Só parar e avisar JÃO** se não encontrar nem no Excel **nem** na planilha online
 
 ---
 
@@ -702,18 +724,22 @@ $lines = Get-Content $tmp -Encoding UTF8
 - PEX Agente (`consulta_manifestoAgente.php`) → col[18] pode ter os valores (ver BUG #1)
 - PEX Terceiro (`consulta_manifestoTerceiro.php`) → c_transf em **col[16]** (r[16]) ← NOVO
 
-**MÉTODO CANÔNICO — Sempre verificar via hidden fields da página do manifesto:**
+**MÉTODO CANÔNICO — SEMPRE usar hidden fields da página do manifesto (REGRA ABSOLUTA):**
 ```javascript
 // Navegar até manifesto (qualquer tipo/sistema) → checar hidden inputs:
-document.querySelector('[name=manifestFreigth]')?.value   // frete
-document.querySelector('[name=manifestToll]')?.value      // pedágio
-document.querySelector('[name=manifestAdvanceMoney]')?.value  // adiantamento
-// c_transf real = manifestFreigth + manifestToll + manifestAdvanceMoney
+var f = parseFloat(document.querySelector('[name=manifestFreigth]')?.value || 0);
+var t = parseFloat(document.querySelector('[name=manifestToll]')?.value || 0);
+var a = parseFloat(document.querySelector('[name=manifestAdvanceMoney]')?.value || 0);
+var ctransf = f + t + a;
+console.log('CTRANSF:' + ctransf + ' (frete=' + f + ' pedagio=' + t + ' adiant=' + a + ')');
 ```
+- c_transf real = manifestFreigth + manifestToll + manifestAdvanceMoney
+- Para multi-sistema: navegar manifesto de CADA sistema e somar todos os valores
+- ❌ **NUNCA usar soma de r[18]+r[19]+r[20] da 147** — a 147 distribui por CTE e pode incluir custos extras não contratados
 
-**Detecção rápida pelo JSON (sem navegar até a página):**
-- Se col[18] > 0 → c_transf = col[18] (AZ/PTX/PEX-Agente)
-- Se col[18] = 0 E col[16] > 0 → c_transf = col[16] (PEX-Terceiro)
+**Detecção rápida pelo JSON (APENAS para verificação rápida, não como fonte):**
+- Se col[18] > 0 → indicativo de custo em AZ/PTX/PEX-Agente (confirmar via hidden fields)
+- Se col[18] = 0 E col[16] > 0 → indicativo de PEX-Terceiro (confirmar via hidden fields)
 
 ---
 
@@ -795,6 +821,7 @@ $wsA.Range("S19").Value2 = [double]$targetVal  # backup direto
 - [ ] Ao cadastrar Target: usando SaveAs → C:\Temp → Copy-Item? (não Save direto)
 - [ ] Sistema SP mencionado? → Trocar por PTX automaticamente
 - [ ] concat com "São Paulo" — acento correto? XLOOKUP é accent-sensitive → BUG #10
+- [ ] Nome do motorista vem do campo `select[name="motorista_terceiro"]` da página do manifesto → NÃO usar r[17] (empresa) → BUG #14
 
 ---
 
@@ -892,3 +919,88 @@ if c_entrega is None:
 **Checklist FECHADO atualizado:**
 - [ ] Após gerar, verificar K11 na aba Análise — deve ser o valor pago ao motorista (CUSTOS MANIFESTO)
 - [ ] Se K11 ≈ 0 ou muito baixo → verificar r[16] vs r[18] via JSON; o auto-fix agora cobre esse caso
+
+---
+
+### BUG #14 — Nome do motorista coletado errado (empresa em vez de pessoa)
+**Data**: 11/08/2026 | **Reportado por JÃO**
+
+**Sintoma**: Craudin salvava o nome da empresa/transportadora como `motorista` (ex: "TRANSPORTES FERRETI LTDA", "TRANSPORTES MOOR LTDA ME") em vez do nome real do condutor/motorista terceiro.
+
+**Causa**: O r[17] do JSON é o nome da empresa contratada (transportador PJ). Craudin usava esse valor ou abreviava o nome da empresa em vez de buscar o nome do motorista real no campo correto da página do manifesto.
+
+**REGRA PERMANENTE — Nome do motorista:**
+- ✅ **SEMPRE usar o campo "MOTORISTA TERCEIRO"** da página do manifesto:
+  ```javascript
+  var sel = document.querySelector('select[name="motorista_terceiro"]');
+  sel ? sel.options[sel.selectedIndex].text.trim() : 'N/A';
+  ```
+- ❌ **NUNCA usar r[17]** do JSON como nome do motorista (r[17] = empresa/transportadora, não o condutor)
+- ❌ **NUNCA abreviar nome da empresa** como se fosse nome de motorista (ex: "MOOR", "FERRETI" a partir do nome da empresa)
+
+**O campo `motorista_terceiro`** contém o nome da **pessoa física** cadastrada como condutor do manifesto — é esse que aparece nos relatórios e deve ser usado no nome do arquivo Excel e no dashboard.
+
+**Ao configurar GERAR_ANALISES_DIA.py e GERAR_HTML_DIA.py:**
+- O campo `motorista=` deve ser o **primeiro nome** do motorista pessoa física (ex: `'ANDERSON'`, `'CARLOS'`, `'LUIZ'`)
+- NÃO usar nome de empresa nem abreviação de empresa
+
+**Ao coletar via JS (Etapa A)**, depois de abrir a página do manifesto, executar:
+```javascript
+var sel = document.querySelector('select[name="motorista_terceiro"]');
+var mot = sel ? sel.options[sel.selectedIndex].text.trim() : '';
+// Pegar só o primeiro nome:
+var primeiro = mot.split(' ')[0];
+console.log('MOTORISTA: ' + mot + ' | PRIMEIRO: ' + primeiro);
+```
+
+---
+
+### BUG #15 — C.M.O(Outros) setado na célula errada (K17 em vez de L19,C8)
+**Data**: 11/08/2026 | **Reportado por JÃO**
+
+**Sintoma**: `cmo_outros` configurado no script (ex: R$100 para JOAO VICTOR, R$300 para RODRIGO), mas o campo "C.M.O(Outros)" no Excel continuava mostrando R$ 0,00.
+
+**Causa**: O script procurava a label 'outros' nas colunas A-H e setava a coluna K da mesma linha (K17). Mas a estrutura real da aba Análise é:
+- L17,C5 = "OUTROS CUSTOS" (título da seção)
+- L18,C8 = "C.M.O(Outros)" (label)
+- **L19,C8 = valor do C.M.O(Outros)** ← célula correta (fórmula original: `='Resumo Detalhado'!J2`)
+
+O código setava K17 (coluna K da linha do título), não L19,C8 (linha abaixo do label, mesma coluna 8).
+
+**REGRA PERMANENTE — C.M.O(Outros):**
+- ✅ **SEMPRE setar `ws_a.cells(19, 8).value = cmo_outros`** (linha 19, coluna 8 = coluna H)
+- ❌ **NUNCA usar** a busca dinâmica por label + offset de coluna K — a célula de valor não fica na coluna K
+
+**FIX PERMANENTE em `gerar_fechado()` e `gerar_fracionado()`** — substituir toda a lógica de busca por:
+```python
+if cmo_outros is not None:
+    ws_a.cells(19, 8).value = cmo_outros
+    print(f'  [cmo_outros] L19,C8 = {cmo_outros}')
+```
+
+**Verificação**: Após salvar, ler `ws_a.cells(19, 8).value` e confirmar que retorna o valor setado.
+
+---
+
+### REGRA DE CONSISTÊNCIA — Tela 147 → Excel → Site (ATUALIZADO 12/08/2026)
+
+**Linha cronológica obrigatória:**
+```
+Tela 147 (JSON) → GERAR_ANALISES_DIA.py → Excel (C:\Temp) → GERAR_HTML_DIA.py → Site
+```
+
+**O site é SEMPRE gerado a partir do Excel.** A função `ler_analise()` no GERAR_HTML_DIA.py lê as células do Excel em `C:\Temp` diretamente. O Excel é a fonte de verdade.
+
+**Regra para alterações pontuais (ex: corrigir target, c_transf, etc.):**
+1. Alterar o Excel via script xlwings → salvar em `C:\Temp\Analise_MOTORISTA_DDMMAAAA.xlsx`
+2. Rodar `GERAR_HTML_DIA.py` → regenerar o HTML
+3. `git push` → site atualizado
+
+**Nunca alterar só um lado** (só Excel sem atualizar o site, ou só o MANIFESTS do HTML sem ter o Excel correto em C:\Temp). Toda alteração fecha o ciclo completo: Excel → HTML → git push.
+
+**Causa comum de dessincronização:** alterar o Excel no workspace/Downloads mas não copiar de volta para `C:\Temp` antes de rodar o GERAR_HTML_DIA.py.
+
+### CONSOLIDADO GERAL — Filtro de Período (ATUALIZADO 12/08/2026)
+
+- Manter apenas os campos **Data Inicial** e **Data Final** para filtrar o período
+- ❌ Remover os botões rápidos "15 dias", "Mês atual", "Mês ant.", "Tudo" — JÃO filtra diretamente pelos campos de data
