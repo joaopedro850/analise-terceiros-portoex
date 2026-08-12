@@ -770,25 +770,22 @@ function _geralRender(){
     });
 
     const bodyH=Math.min(ops.length,MAX_VIS)*ROW_H;
-    // padding-right no thead/total = largura do scrollbar (6px via CSS ::-webkit-scrollbar)
-    // só quando a div de corpo vai scrollar, para manter colunas alinhadas
-    const thPad=scrolls?'padding-right:6px;box-sizing:border-box;':'';
 
     blocos+='<div class="cg-day-block">'
       +'<div class="cg-day-header-bar">'
         +'<span class="cg-day-label">📅 '+dia+'</span>'
         +'<span class="cg-day-ops">'+ops.length+' operaç'+(ops.length>1?'ões':'ão')+'</span>'
       +'</div>'
-      // thead fixa acima do scroll
-      +'<div style="'+thPad+'">'
+      // thead fixa acima do scroll (padding-right ajustado dinamicamente em _geralFixAlign)
+      +'<div class="cg-gutter-pad">'
         +'<table class="cg-t"><colgroup>'+COG+'</colgroup><thead>'+TH_ROW+'</thead></table>'
       +'</div>'
       // corpo scrollável
       +'<div class="cg-body-scroll" style="max-height:'+bodyH+'px;">'
         +'<table class="cg-t"><colgroup>'+COG+'</colgroup><tbody>'+opRows+'</tbody></table>'
       +'</div>'
-      // linha TOTAL abaixo do scroll
-      +'<div style="'+thPad+'">'
+      // linha TOTAL abaixo do scroll (padding-right ajustado dinamicamente em _geralFixAlign)
+      +'<div class="cg-gutter-pad">'
         +'<table class="cg-t cg-total-table"><colgroup>'+COG+'</colgroup>'
           +'<tbody><tr class="cg-total-row">'
             +'<td class="cg-total-lbl" colspan="4">📊 TOTAL DO DIA</td>'
@@ -806,6 +803,26 @@ function _geralRender(){
   const tabela='<div class="cg-blocos-wrap">'+blocos+'</div>';
 
   el2.innerHTML=kpis+charts+destaques+tabela;
+
+  // Alinha colunas: compensa largura real do scrollbar em cada bloco com scroll
+  (function(){
+    var d=document.createElement('div');
+    d.style.cssText='width:100px;height:50px;overflow-y:scroll;scrollbar-width:thin;visibility:hidden;position:fixed;left:-9999px;';
+    document.body.appendChild(d);
+    var sw=d.offsetWidth-d.clientWidth;
+    document.body.removeChild(d);
+    if(!sw) return;
+    document.querySelectorAll('.cg-body-scroll').forEach(function(sc){
+      if(sc.scrollHeight>sc.clientHeight){
+        var block=sc.closest('.cg-day-block');
+        if(!block) return;
+        block.querySelectorAll('.cg-gutter-pad').forEach(function(el){
+          el.style.paddingRight=sw+'px';
+          el.style.boxSizing='border-box';
+        });
+      }
+    });
+  })();
 
   // Build charts
   if(_lineChart){try{_lineChart.destroy();}catch(e){}}
