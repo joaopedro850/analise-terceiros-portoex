@@ -151,6 +151,8 @@ tr:hover td{background:rgba(255,255,255,.02);}
 .cg-alt td{background:rgba(255,255,255,.015);}
 .cg-table tbody tr:last-child td{border-bottom:none;}
 .cg-num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap;}
+.dl-btn-hist{background:rgba(68,114,196,.18);color:#7ba8d9;border:1px solid rgba(68,114,196,.35);border-radius:5px;padding:3px 8px;font-size:.68rem;cursor:pointer;white-space:nowrap;transition:background .2s;}
+.dl-btn-hist:hover{background:rgba(68,114,196,.38);}
 .cg-num-fat{color:#7ba8d9;}
 .cg-td-nome{font-weight:600;}
 .cg-td-vei{color:var(--sub);}
@@ -195,6 +197,40 @@ EXCELS["Renato"]="excels/Analise_RENATO_10082026.xlsx";
 EXCELS["Ricardo"]="excels/Analise_RICARDO_10082026.xlsx";
 EXCELS["Marcos"]="excels/Analise_MARCOS_11082026.xlsx";
 EXCELS["Cristiano"]="excels/Analise_CRISTIANO_11082026.xlsx";
+const ALL_EXCELS={};
+ALL_EXCELS["ADRIANO_05082026"]="excels/Analise_ADRIANO_05082026.xlsx";
+ALL_EXCELS["BRIAN_10082026"]="excels/Analise_BRIAN_10082026.xlsx";
+ALL_EXCELS["CITRUS_05082026"]="excels/Analise_CITRUS_05082026.xlsx";
+ALL_EXCELS["CRISTIANO_11082026"]="excels/Analise_CRISTIANO_11082026.xlsx";
+ALL_EXCELS["FELIPE_05082026"]="excels/Analise_FELIPE_05082026.xlsx";
+ALL_EXCELS["FERRETI IDA_06082026"]="excels/Analise_FERRETI IDA_06082026.xlsx";
+ALL_EXCELS["FERRETI_05082026"]="excels/Analise_FERRETI_05082026.xlsx";
+ALL_EXCELS["FERRETI_06082026"]="excels/Analise_FERRETI_06082026.xlsx";
+ALL_EXCELS["FERRETI_07082026"]="excels/Analise_FERRETI_07082026.xlsx";
+ALL_EXCELS["FLORES_06082026"]="excels/Analise_FLORES_06082026.xlsx";
+ALL_EXCELS["JAIR BATISTA_31072026"]="excels/Analise_JAIR BATISTA_31072026.xlsx";
+ALL_EXCELS["JEAN_06082026"]="excels/Analise_JEAN_06082026.xlsx";
+ALL_EXCELS["JOAO VICTOR_07082026"]="excels/Analise_JOAO VICTOR_07082026.xlsx";
+ALL_EXCELS["JOEL_07082026"]="excels/Analise_JOEL_07082026.xlsx";
+ALL_EXCELS["JOSENIR_31072026"]="excels/Analise_JOSENIR_31072026.xlsx";
+ALL_EXCELS["MARCOS_06082026"]="excels/Analise_MARCOS_06082026.xlsx";
+ALL_EXCELS["MARCOS_11082026"]="excels/Analise_MARCOS_11082026.xlsx";
+ALL_EXCELS["MOOR_07082026"]="excels/Analise_MOOR_07082026.xlsx";
+ALL_EXCELS["NANO_05082026"]="excels/Analise_NANO_05082026.xlsx";
+ALL_EXCELS["NATHA_05082026"]="excels/Analise_NATHA_05082026.xlsx";
+ALL_EXCELS["NHC_10082026"]="excels/Analise_NHC_10082026.xlsx";
+ALL_EXCELS["PRAZITO_10082026"]="excels/Analise_PRAZITO_10082026.xlsx";
+ALL_EXCELS["PRISCILA_07082026"]="excels/Analise_PRISCILA_07082026.xlsx";
+ALL_EXCELS["RAFAEL_06082026"]="excels/Analise_RAFAEL_06082026.xlsx";
+ALL_EXCELS["RENATO_03082026"]="excels/Analise_RENATO_03082026.xlsx";
+ALL_EXCELS["RENATO_04082026"]="excels/Analise_RENATO_04082026.xlsx";
+ALL_EXCELS["RENATO_07082026"]="excels/Analise_RENATO_07082026.xlsx";
+ALL_EXCELS["RENATO_10082026"]="excels/Analise_RENATO_10082026.xlsx";
+ALL_EXCELS["RICARDO_03082026"]="excels/Analise_RICARDO_03082026.xlsx";
+ALL_EXCELS["RICARDO_04082026"]="excels/Analise_RICARDO_04082026.xlsx";
+ALL_EXCELS["RICARDO_10082026"]="excels/Analise_RICARDO_10082026.xlsx";
+ALL_EXCELS["ROBSON_07082026"]="excels/Analise_ROBSON_07082026.xlsx";
+ALL_EXCELS["WESLEY_07082026"]="excels/Analise_WESLEY_07082026.xlsx";
 const DIAS={};
 DIAS["10/08/2026"]={ops:[
   {nome:"Renato",tipo:"FRACIONADO",ctes:90,fat:29963.74,res:4190.46,mg:0.1399,vei:"Carreta",ocup:0.7733,trecho:"Itajai-Sc X São Paulo-Sp",c_transf:5200.0,target:5200,dif:0.0,status:"DENTRO DO TARGET"},
@@ -222,6 +258,15 @@ function dlExcel(nome){
   var url=EXCELS[nome];if(!url){alert('Excel não disponível para '+nome);return;}
   var a=document.createElement('a');
   a.href=url;a.download='Analise_'+nome+'.xlsx';a.click();
+}
+function dlHistExcel(nome,dia){
+  // dia formato DD/MM/AAAA → DDMMAAAA
+  var dataStr=dia.replace(/\//g,'');
+  var key=nome.toUpperCase()+'_'+dataStr;
+  var url=ALL_EXCELS[key];
+  if(!url){alert('Excel não disponível para '+nome+' ('+dia+')');return;}
+  var a=document.createElement('a');
+  a.href=url;a.download='Analise_'+nome+'_'+dataStr+'.xlsx';a.click();
 }
 function mkChart(id,type,data,opts){
   const el=document.getElementById(id);if(!el)return;
@@ -695,6 +740,7 @@ function _geralRender(){
         +'<td class="cg-td-ct">'+fmt(o.c_transf)+'<span class="cg-ct-sep">/</span>'+fmt(o.target)+'</td>'
         +'<td class="cg-num '+mgnum(o.dif)+'">'+fmt(o.dif)+'</td>'
         +'<td><span class="'+stCls+'">'+stIcon+' '+o.status+'</span></td>'
+        +'<td><button class="dl-btn-hist" onclick="dlHistExcel(\''+o.nome+'\',\''+o.dia+'\')">⬇ XLS</button></td>'
         +'</tr>';
     });
   });
@@ -703,7 +749,7 @@ function _geralRender(){
     +'<thead><tr>'
     +'<th>Operador</th><th>Tipo</th><th>Veículo</th><th style="text-align:right;">CTEs</th>'
     +'<th style="text-align:right;">Faturamento</th><th style="text-align:right;">Resultado</th><th style="text-align:right;">Margem</th>'
-    +'<th>C.Transf / Target</th><th style="text-align:right;">Dif</th><th>Status</th>'
+    +'<th>C.Transf / Target</th><th style="text-align:right;">Dif</th><th>Status</th><th>Detalhe</th>'
     +'</tr></thead><tbody>'+trows+'</tbody></table></div>';
 
   el2.innerHTML=kpis+charts+destaques+tabela;
