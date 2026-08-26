@@ -2,7 +2,7 @@
 <html lang="pt-BR"><head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Painel Operacional — 20/08/2026 | PortoEx</title>
+<title>Painel Operacional — 21/08/2026 | PortoEx</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <style>
 :root{
@@ -201,12 +201,12 @@ tr:hover td{background:rgba(255,255,255,.02);}
     </div>
   </div>
   <div class="hd-right">
-    <div class="hd-date-item"><div class="hd-date-label">Data da Operação</div><div class="hd-date-val">20/08/2026</div></div>
-    <div class="hd-date-item"><div class="hd-date-label">Data da Análise</div><div class="hd-date-val">25/08/2026</div></div>
+    <div class="hd-date-item"><div class="hd-date-label">Data da Operação</div><div class="hd-date-val">21/08/2026</div></div>
+    <div class="hd-date-item"><div class="hd-date-label">Data da Análise</div><div class="hd-date-val">26/08/2026</div></div>
   </div>
 </header>
 <div class="tabs" id="tabs">
-  <div class="tab active" onclick="switchTab(this.textContent)">20/08/2026</div>
+  <div class="tab active" onclick="switchTab(this.textContent)">21/08/2026</div>
   <div class="tab" onclick="switchTab(this.textContent)">Consolidado</div>
   <div class="tab" onclick="switchTab(this.textContent)">Consolidado Geral</div>
 </div>
@@ -214,8 +214,11 @@ tr:hover td{background:rgba(255,255,255,.02);}
 <script>
 
 const EXCELS={};
-EXCELS["Jackson"]="excels/Analise_JACKSON_20082026.xlsx";
-EXCELS["Fabiano"]="excels/Analise_FABIANO_20082026.xlsx";
+EXCELS["Rafael"]="excels/Analise_RAFAEL_21082026.xlsx";
+EXCELS["Ricardo"]="excels/Analise_RICARDO_21082026.xlsx";
+EXCELS["Renato"]="excels/Analise_RENATO_21082026.xlsx";
+EXCELS["Vinicius"]="excels/Analise_VINICIUS_21082026.xlsx";
+EXCELS["Elton"]="excels/Analise_ELTON_21082026.xlsx";
 const ALL_EXCELS={};
 ALL_EXCELS["ADRIANO_05082026"]="excels/Analise_ADRIANO_05082026.xlsx";
 ALL_EXCELS["ALEXANDRE_19082026"]="excels/Analise_ALEXANDRE_19082026.xlsx";
@@ -227,6 +230,7 @@ ALL_EXCELS["CRISTIANO_19082026"]="excels/Analise_CRISTIANO_19082026.xlsx";
 ALL_EXCELS["DIOGO_17082026"]="excels/Analise_DIOGO_17082026.xlsx";
 ALL_EXCELS["EDIVAN_14082026"]="excels/Analise_EDIVAN_14082026.xlsx";
 ALL_EXCELS["ELOIR_13082026"]="excels/Analise_ELOIR_13082026.xlsx";
+ALL_EXCELS["ELTON_21082026"]="excels/Analise_ELTON_21082026.xlsx";
 ALL_EXCELS["EMERSON_14082026"]="excels/Analise_EMERSON_14082026.xlsx";
 ALL_EXCELS["FABIANO_20082026"]="excels/Analise_FABIANO_20082026.xlsx";
 ALL_EXCELS["FELIPE_05082026"]="excels/Analise_FELIPE_05082026.xlsx";
@@ -264,6 +268,7 @@ ALL_EXCELS["PRISCILA_07082026"]="excels/Analise_PRISCILA_07082026.xlsx";
 ALL_EXCELS["RAFAEL_06082026"]="excels/Analise_RAFAEL_06082026.xlsx";
 ALL_EXCELS["RAFAEL_11082026"]="excels/Analise_RAFAEL_11082026.xlsx";
 ALL_EXCELS["RAFAEL_18082026"]="excels/Analise_RAFAEL_18082026.xlsx";
+ALL_EXCELS["RAFAEL_21082026"]="excels/Analise_RAFAEL_21082026.xlsx";
 ALL_EXCELS["RENATO_03082026"]="excels/Analise_RENATO_03082026.xlsx";
 ALL_EXCELS["RENATO_04082026"]="excels/Analise_RENATO_04082026.xlsx";
 ALL_EXCELS["RENATO_07082026"]="excels/Analise_RENATO_07082026.xlsx";
@@ -275,6 +280,7 @@ ALL_EXCELS["RENATO_14082026"]="excels/Analise_RENATO_14082026.xlsx";
 ALL_EXCELS["RENATO_17082026"]="excels/Analise_RENATO_17082026.xlsx";
 ALL_EXCELS["RENATO_18082026"]="excels/Analise_RENATO_18082026.xlsx";
 ALL_EXCELS["RENATO_19082026"]="excels/Analise_RENATO_19082026.xlsx";
+ALL_EXCELS["RENATO_21082026"]="excels/Analise_RENATO_21082026.xlsx";
 ALL_EXCELS["RICARDO_03082026"]="excels/Analise_RICARDO_03082026.xlsx";
 ALL_EXCELS["RICARDO_04082026"]="excels/Analise_RICARDO_04082026.xlsx";
 ALL_EXCELS["RICARDO_10082026"]="excels/Analise_RICARDO_10082026.xlsx";
@@ -285,16 +291,21 @@ ALL_EXCELS["RICARDO_14082026"]="excels/Analise_RICARDO_14082026.xlsx";
 ALL_EXCELS["RICARDO_17082026"]="excels/Analise_RICARDO_17082026.xlsx";
 ALL_EXCELS["RICARDO_18082026"]="excels/Analise_RICARDO_18082026.xlsx";
 ALL_EXCELS["RICARDO_19082026"]="excels/Analise_RICARDO_19082026.xlsx";
+ALL_EXCELS["RICARDO_21082026"]="excels/Analise_RICARDO_21082026.xlsx";
 ALL_EXCELS["ROBSON_07082026"]="excels/Analise_ROBSON_07082026.xlsx";
+ALL_EXCELS["VINICIUS_21082026"]="excels/Analise_VINICIUS_21082026.xlsx";
 ALL_EXCELS["WESLEY_07082026"]="excels/Analise_WESLEY_07082026.xlsx";
 ALL_EXCELS["WILLIAM_18082026"]="excels/Analise_WILLIAM_18082026.xlsx";
 ALL_EXCELS["WILLIAM_19082026"]="excels/Analise_WILLIAM_19082026.xlsx";
 const DIAS={};
-DIAS["20/08/2026"]={ops:[
-  {nome:"Jackson",tipo:"FECHADO",ctes:1,fat:3020.0,res:873.35,mg:0.2892,vei:"Van",ocup:1.0,trecho:"Santos-Sp X Jundiai-Sp",c_transf:1200.0,target:1200.0,dif:0.0,status:"DENTRO DO TARGET"},
-  {nome:"Fabiano",tipo:"FECHADO",ctes:2,fat:4757.75,res:3348.93,mg:0.7039,vei:"Van",ocup:1.0,trecho:"Curitiba-Pr X Guarulhos-Sp",c_transf:2100.0,target:1800.0,dif:300.0,status:"FORA DO TARGET"}
+DIAS["21/08/2026"]={ops:[
+  {nome:"Rafael",tipo:"FRACIONADO",ctes:43,fat:24802.06,res:1362.99,mg:0.055,vei:"Carreta",ocup:1.0,trecho:"Itajai-Sc X São Paulo-Sp",c_transf:5300.0,target:5500.0,dif:-200.0,status:"ABAIXO DO TARGET"},
+  {nome:"Ricardo",tipo:"FRACIONADO",ctes:94,fat:27573.4,res:4776.01,mg:0.1732,vei:"Carreta",ocup:0.7239,trecho:"Itajai-Sc X São Paulo-Sp",c_transf:5100.0,target:5100,dif:0.0,status:"DENTRO DO TARGET"},
+  {nome:"Renato",tipo:"FRACIONADO",ctes:34,fat:6402.97,res:1599.24,mg:0.2498,vei:"Carreta",ocup:0.2833,trecho:"São Paulo-Sp X Itajai-Sc",c_transf:1850.0,target:1850,dif:0.0,status:"DENTRO DO TARGET"},
+  {nome:"Vinicius",tipo:"FECHADO",ctes:1,fat:7774.81,res:1459.38,mg:0.1877,vei:"3/4",ocup:1.0,trecho:"Navegantes-Sc X Embu Das Artes-Sp",c_transf:3200.0,target:3200.0,dif:0.0,status:"DENTRO DO TARGET"},
+  {nome:"Elton",tipo:"FECHADO",ctes:1,fat:10340.87,res:4086.64,mg:0.3952,vei:"3/4",ocup:0.518,trecho:"Pouso Alegre-Mg X Extrema-Mg",c_transf:1800.0,target:2200.0,dif:-400.0,status:"ABAIXO DO TARGET"}
 ]};
-const DIAS_KEYS=["20/08/2026"];
+const DIAS_KEYS=["21/08/2026"];
 let activeCharts=[];
 function dc(){activeCharts.forEach(c=>c.destroy());activeCharts=[];}
 function fmt(v){return'R '+v.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});}
@@ -726,10 +737,15 @@ const HIST_MES=[
 {nome:"Ricardo",dia:"19/08/2026",tipo:"FRACIONADO",vei:"Carreta",trecho:"Itajai-Sc X São Paulo-Sp",fat:38103.87,res:9327.56,mg:0.2448,ocup:0.8226,ctes:143,c_transf:5100.0,target:5100,dif:0.0,status:"DENTRO DO TARGET"},
 {nome:"Jhon",dia:"19/08/2026",tipo:"FRACIONADO",vei:"Carreta",trecho:"Itajai-Sc X São Paulo-Sp",fat:35806.35,res:6040.15,mg:0.1687,ocup:0.6751,ctes:60,c_transf:5300.0,target:5500.0,dif:-200.0,status:"ABAIXO DO TARGET"},
 {nome:"Jackson",dia:"20/08/2026",tipo:"FECHADO",vei:"Van",trecho:"Santos-Sp X Jundiai-Sp",fat:3020.0,res:873.35,mg:0.2892,ocup:1.0,ctes:1,c_transf:1200.0,target:1200.0,dif:0.0,status:"DENTRO DO TARGET"},
-{nome:"Fabiano",dia:"20/08/2026",tipo:"FECHADO",vei:"Van",trecho:"Curitiba-Pr X Guarulhos-Sp",fat:4757.75,res:3348.93,mg:0.7039,ocup:1.0,ctes:2,c_transf:2100.0,target:1800.0,dif:300.0,status:"FORA DO TARGET"}
+{nome:"Fabiano",dia:"20/08/2026",tipo:"FECHADO",vei:"Van",trecho:"Curitiba-Pr X Guarulhos-Sp",fat:4757.75,res:3348.93,mg:0.7039,ocup:1.0,ctes:2,c_transf:2100.0,target:1800.0,dif:300.0,status:"FORA DO TARGET"},
+{nome:"Rafael",dia:"21/08/2026",tipo:"FRACIONADO",vei:"Carreta",trecho:"Itajai-Sc X São Paulo-Sp",fat:24802.06,res:1362.99,mg:0.055,ocup:1.0,ctes:43,c_transf:5300.0,target:5500.0,dif:-200.0,status:"ABAIXO DO TARGET"},
+{nome:"Ricardo",dia:"21/08/2026",tipo:"FRACIONADO",vei:"Carreta",trecho:"Itajai-Sc X São Paulo-Sp",fat:27573.4,res:4776.01,mg:0.1732,ocup:0.7239,ctes:94,c_transf:5100.0,target:5100,dif:0.0,status:"DENTRO DO TARGET"},
+{nome:"Renato",dia:"21/08/2026",tipo:"FRACIONADO",vei:"Carreta",trecho:"São Paulo-Sp X Itajai-Sc",fat:6402.97,res:1599.24,mg:0.2498,ocup:0.2833,ctes:34,c_transf:1850.0,target:1850,dif:0.0,status:"DENTRO DO TARGET"},
+{nome:"Vinicius",dia:"21/08/2026",tipo:"FECHADO",vei:"3/4",trecho:"Navegantes-Sc X Embu Das Artes-Sp",fat:7774.81,res:1459.38,mg:0.1877,ocup:1.0,ctes:1,c_transf:3200.0,target:3200.0,dif:0.0,status:"DENTRO DO TARGET"},
+{nome:"Elton",dia:"21/08/2026",tipo:"FECHADO",vei:"3/4",trecho:"Pouso Alegre-Mg X Extrema-Mg",fat:10340.87,res:4086.64,mg:0.3952,ocup:0.518,ctes:1,c_transf:1800.0,target:2200.0,dif:-400.0,status:"ABAIXO DO TARGET"}
 ];
-const PERIODO_INI="2026-08-11";
-const PERIODO_FIM="2026-08-25";
+const PERIODO_INI="2026-08-12";
+const PERIODO_FIM="2026-08-26";
 
 // ── Consolidado Geral — redesign profissional ─────────────────────
 let _geralIni=PERIODO_INI;
