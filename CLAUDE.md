@@ -25,7 +25,15 @@ REGRA ABSOLUTA: Seguir exatamente este processo. Se quiser tentar algo diferente
 4. Copiar Excels para o workspace também
 
 ### ETAPA C — Gerar HTML dashboard e subir para o site
-1. Configurar `GERAR_HTML_DIA.py` (seção MANIFESTS):
+
+⚠️ **REGRA PERMANENTE (ATUALIZADO 02/09/2026) — MANIFESTS do dashboard = SOMENTE o dia novo:**
+A cada novo lote/dia, a lista `MANIFESTS` do `GERAR_HTML_DIA.py` deve conter **APENAS as operações do dia que está sendo processado agora** — **REMOVER** (não acumular) as entradas de dias anteriores antes de rodar o script.
+O histórico de dias anteriores **NÃO fica no dashboard diário** — ele fica preservado apenas na **análise consolidada geral** (`GERAR_ANALISE_TERCEIROS.PY`, atualmente suspensa por decisão de JÃO — ver seção de suspensão abaixo).
+- ❌ Errado: manter no MANIFESTS as entradas do lote anterior e só adicionar as novas embaixo
+- ✅ Correto: apagar todas as entradas do dia anterior e deixar só as do dia atual antes de rodar `GERAR_HTML_DIA.py`
+- Isso vale tanto para o `GERAR_HTML_DIA.py` (dashboard) quanto para não confundir com `GERAR_ANALISES_DIA.py` (que gera os Excels individuais e pode manter só o lote do dia sendo processado, sem relação com esse histórico do site)
+
+1. Configurar `GERAR_HTML_DIA.py` (seção MANIFESTS) — **substituir a lista inteira pelo dia novo**:
    ```python
    MANIFESTS = [
        dict(motorista='NOME', data='DDMMAAAA', dia='DD/MM/AAAA', tipo='FECHADO|FRACIONADO',
@@ -53,7 +61,8 @@ REGRA ABSOLUTA: Seguir exatamente este processo. Se quiser tentar algo diferente
 **Exceções — usar valor fixo sempre (nunca consultar):**
 - Agregados RENATO (QSU-6I78): Itajaí→SP=R$5.200 | SP→Itajaí=R$1.850
 - Agregados RICARDO (AJQ-3G51 / RXT-7G93): Itajaí→SP=R$5.100 | SP→Itajaí=R$1.100
-- Frota própria: target definido por JÃO caso a caso
+- Frota própria: tratar SEMPRE como agregado — valor fixo definido por JÃO caso a caso (mesmo mecanismo de RENATO/RICARDO: usar `target_fixo` no GERAR_ANALISES_DIA.py e `TARGET_FIXO_MANUAL` no GERAR_HTML_DIA.py). Confirmado 31/08/2026 com JOSENIR DE SOUZA CUNHA (placa MLM-9642): c_transf e target = R$1.000,00 — JÃO ajustou o valor diretamente no manifesto e este passou a ser tanto o custo quanto o target.
+- **Frota própria — TRUCK (REGRA PADRÃO, confirmado 04/09/2026)**: para qualquer veículo Truck de frota própria (independente da placa/motorista), usar como c_transf e target padrão: **Itajaí→SP (subida) = R$2.800** | **SP→Itajaí (descida) = R$1.000**. Detectar direção pelo trecho/CONCATENADO. Caso confirmado com JOSENIR DE SOUZA CUNHA (placa OKG-5I79), mas a regra vale para qualquer frota própria Truck, não só essa placa/motorista específica.
 
 **Para todos os demais, consultar nesta ordem:**
 1. Aba **Target** do Excel template (Analise Fechado.xlsx / Analise Fracionado.xlsx)
@@ -979,6 +988,39 @@ if cmo_outros is not None:
 ```
 
 **Verificação**: Após salvar, ler `ws_a.cells(19, 8).value` e confirmar que retorna o valor setado.
+
+---
+
+### BUG #16 — Imposto duplicado no template FECHADO (16% em vez de 8%)
+**Data**: 01/09/2026 | **Reportado por JÃO**
+
+**Sintoma**: No template `Analise Fechado.xlsx`, o campo calculado "ResultadoOper." da pivot table "Resumo Detalhado" descontava **dois** campos de imposto (`I.FEDERAIS` e `C.FIXO`), ambos com fórmula idêntica `=FRETE*8%`. Resultado: o resultado operacional saía descontando **16%** de imposto (8%+8%), quando o correto é descontar apenas **8%**.
+
+**Causa**: Os campos calculados da pivot table:
+- `I.FEDERAIS` = `FRETE*8%`
+- `C.FIXO` = `FRETE*8%` (duplicado — deveria ter fórmula própria ou não entrar no cálculo)
+
+E `ResultadoOper.` = `FRETE-'CUSTO COLETA'-'CUSTO ENTREGA'-'CUSTO TRANSF'-'ICMS/ISS'-SEGURO-OUTROS-I.FEDERAIS-C.FIXO-COMIS` — subtraía os dois.
+
+**REGRA PERMANENTE — imposto no template FECHADO (vale só para Analise Fechado.xlsx):**
+- ✅ `ResultadoOper.` deve subtrair **somente** `I.FEDERAIS` (8% do frete)
+- ❌ **NÃO subtrair `C.FIXO`** do resultado — fórmula correta: `=FRETE-'CUSTO COLETA'-'CUSTO ENTREGA'-'CUSTO TRANSF'-'ICMS/ISS'-SEGURO-OUTROS-I.FEDERAIS-COMIS`
+- Essa correção foi aplicada diretamente no template em `C:\Users\miche\Documents\MEU ( PRIORIDADE )\Analise Fechado.xlsx` via PowerShell COM (`PivotTable.CalculatedFields("ResultadoOper.").Formula`), SaveAs em C:\Temp → Copy-Item de volta ao template.
+- **Não altera o template Fracionado** — JÃO confirmou que essa correção vale só para FECHADO (Fracionado não foi verificado/alterado).
+
+**Como verificar se o template está correto:**
+```python
+pt = wb.sheets['Resumo Detalhado'].api.PivotTables(1)
+cfs = pt.CalculatedFields()
+for i in range(1, cfs.Count+1):
+    f = cfs(i)
+    if f.Name == 'ResultadoOper.':
+        print(f.Formula)  # NÃO deve conter "-C.FIXO"
+```
+
+**Caso real (MARCELO, 94750 AZ, 01/09/2026, personalizado/lotação)**: FRETE=R$4.125,35, C.Entrega=R$3.200. Antes do fix: resultado=R$265,29 (16% imposto = R$660,06). Depois do fix: resultado=R$595,32 (8% imposto = R$330,03).
+
+**Observação sobre "personalizado" (SERVICO=PERSONALIZADO_L)**: a coluna "IMPOSTO" da aba Base mostra o valor do sistema Brudam a 26% (`FRETE*26%`) — é só referência/comparação, não entra no cálculo do ResultadoOper. O cálculo real da análise sempre usa os 8% do campo `I.FEDERAIS`, independente do SERVICO ser PERSONALIZADO ou não.
 
 ---
 
