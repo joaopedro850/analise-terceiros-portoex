@@ -58,6 +58,13 @@ O histórico de dias anteriores **NÃO fica no dashboard diário** — ele fica 
 
 ## 📊 FONTE DE TARGET — ORDEM DE CONSULTA (ATUALIZADO 11/08/2026)
 
+⚠️ **REGRA FUNDAMENTAL (ATUALIZADO 18/09/2026) — C_TRANSF ≠ TARGET, mesmo para agregados/frota:**
+Nas exceções de valor fixo abaixo (RENATO, RICARDO, frota própria), o valor fixo é **SOMENTE para o TARGET**.
+O **C_TRANSF é SEMPRE a soma bruta dos hidden fields** (manifestFreigth + manifestToll + manifestAdvanceMoney de todos os sistemas), **mesmo quando o motorista é agregado ou frota própria** — NUNCA usar o valor fixo como c_transf se a soma bruta for diferente.
+- Se a soma bruta bater com o valor fixo (como normalmente acontece com RENATO/RICARDO) → sem conflito, os dois valores coincidem.
+- Se a soma bruta divergir do valor fixo (ex: frota própria com soma bruta R$4.100 mas target padrão R$2.800) → **c_transf = R$4.100 (soma bruta)** e **target = R$2.800 (fixo)** ficam diferentes, e o status (DENTRO/FORA/ABAIXO) reflete essa diferença real.
+- Caso real: ITAUAN GONZAGA DA SILVA (frota própria, placa OKG-5I79, 18/09/2026) — AZ 95510 frete=3800 + PEX 1087 frete=300 = soma bruta R$4.100 → c_transf=4100; target permanece fixo em R$2.800 (regra Frota Truck) → FORA DO TARGET.
+
 **Exceções — usar valor fixo sempre (nunca consultar):**
 - Agregados RENATO (QSU-6I78): Itajaí→SP=R$5.200 | SP→Itajaí=R$1.850
 - Agregados RICARDO (AJQ-3G51 / RXT-7G93): Itajaí→SP=R$5.100 | SP→Itajaí=R$1.100
