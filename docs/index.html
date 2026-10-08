@@ -221,6 +221,7 @@ EXCELS["Cristiano"]="excels/Analise_CRISTIANO_05102026.xlsx";
 EXCELS["Rubens"]="excels/Analise_RUBENS_05102026.xlsx";
 EXCELS["Victoria"]="excels/Analise_VICTORIA_05102026.xlsx";
 EXCELS["Ricardo"]="excels/Analise_RICARDO_05102026.xlsx";
+EXCELS["Ricardo maia"]="excels/Analise_RICARDO MAIA_05102026.xlsx";
 const ALL_EXCELS={};
 ALL_EXCELS["ADELAIDE_25082026"]="excels/Analise_ADELAIDE_25082026.xlsx";
 ALL_EXCELS["ADILSON_01102026"]="excels/Analise_ADILSON_01102026.xlsx";
@@ -434,6 +435,7 @@ ALL_EXCELS["RICARDO LEANDRO_10092026"]="excels/Analise_RICARDO LEANDRO_10092026.
 ALL_EXCELS["RICARDO LEANDRO_27082026"]="excels/Analise_RICARDO LEANDRO_27082026.xlsx";
 ALL_EXCELS["RICARDO LEANDRO_28082026"]="excels/Analise_RICARDO LEANDRO_28082026.xlsx";
 ALL_EXCELS["RICARDO LEANDRO_31082026"]="excels/Analise_RICARDO LEANDRO_31082026.xlsx";
+ALL_EXCELS["RICARDO MAIA_05102026"]="excels/Analise_RICARDO MAIA_05102026.xlsx";
 ALL_EXCELS["RICARDO MARCOLLA_27082026"]="excels/Analise_RICARDO MARCOLLA_27082026.xlsx";
 ALL_EXCELS["RICARDO_01102026"]="excels/Analise_RICARDO_01102026.xlsx";
 ALL_EXCELS["RICARDO_02102026"]="excels/Analise_RICARDO_02102026.xlsx";
@@ -507,7 +509,8 @@ DIAS["05/10/2026"]={ops:[
   {nome:"Cristiano",tipo:"FECHADO",ctes:2,fat:9624.68,res:6864.67,mg:0.7132,vei:"Carreta",ocup:0.747,trecho:"Itajai-Sc X Capivari-Sp",c_transf:5800.0,target:5800.0,dif:0.0,status:"DENTRO DO TARGET"},
   {nome:"Rubens",tipo:"FECHADO",ctes:2,fat:10199.44,res:7837.34,mg:0.7684,vei:"Carreta",ocup:0.3127,trecho:"Navegantes-Sc X Cajamar-Sp",c_transf:5500.0,target:5500.0,dif:0.0,status:"DENTRO DO TARGET"},
   {nome:"Victoria",tipo:"FECHADO",ctes:2,fat:3853.25,res:2542.16,mg:0.6597,vei:"Van",ocup:0.1939,trecho:"Guarulhos-Sp X Itajai-Sc",c_transf:2400.0,target:2400.0,dif:0.0,status:"DENTRO DO TARGET"},
-  {nome:"Ricardo",tipo:"FRACIONADO",ctes:43,fat:32572.92,res:4658.88,mg:0.143,vei:"Carreta",ocup:0.9268,trecho:"Itajai-Sc X São Paulo-Sp",c_transf:4200.0,target:5100,dif:-900.0,status:"ABAIXO DO TARGET"}
+  {nome:"Ricardo",tipo:"FRACIONADO",ctes:43,fat:32572.92,res:4658.88,mg:0.143,vei:"Carreta",ocup:0.9268,trecho:"Itajai-Sc X São Paulo-Sp",c_transf:4200.0,target:5100,dif:-900.0,status:"ABAIXO DO TARGET"},
+  {nome:"Ricardo maia",tipo:"FRACIONADO",ctes:35,fat:11542.55,res:2149.1,mg:0.1862,vei:"Carreta",ocup:0.2691,trecho:"São Paulo-Sp X Itajai-Sc",c_transf:1100.0,target:1100.0,dif:0.0,status:"DENTRO DO TARGET"}
 ]};
 const DIAS_KEYS=["05/10/2026"];
 let activeCharts=[];
@@ -1147,7 +1150,8 @@ const HIST_MES=[
 {nome:"Cristiano",dia:"05/10/2026",tipo:"FECHADO",vei:"Carreta",trecho:"Itajai-Sc X Capivari-Sp",fat:9624.68,res:6864.67,mg:0.7132,ocup:0.747,ctes:2,c_transf:5800.0,target:5800.0,dif:0.0,status:"DENTRO DO TARGET"},
 {nome:"Rubens",dia:"05/10/2026",tipo:"FECHADO",vei:"Carreta",trecho:"Navegantes-Sc X Cajamar-Sp",fat:10199.44,res:7837.34,mg:0.7684,ocup:0.3127,ctes:2,c_transf:5500.0,target:5500.0,dif:0.0,status:"DENTRO DO TARGET"},
 {nome:"Victoria",dia:"05/10/2026",tipo:"FECHADO",vei:"Van",trecho:"Guarulhos-Sp X Itajai-Sc",fat:3853.25,res:2542.16,mg:0.6597,ocup:0.1939,ctes:2,c_transf:2400.0,target:2400.0,dif:0.0,status:"DENTRO DO TARGET"},
-{nome:"Ricardo",dia:"05/10/2026",tipo:"FRACIONADO",vei:"Carreta",trecho:"Itajai-Sc X São Paulo-Sp",fat:32572.92,res:4658.88,mg:0.143,ocup:0.9268,ctes:43,c_transf:4200.0,target:5100,dif:-900.0,status:"ABAIXO DO TARGET"}
+{nome:"Ricardo",dia:"05/10/2026",tipo:"FRACIONADO",vei:"Carreta",trecho:"Itajai-Sc X São Paulo-Sp",fat:32572.92,res:4658.88,mg:0.143,ocup:0.9268,ctes:43,c_transf:4200.0,target:5100,dif:-900.0,status:"ABAIXO DO TARGET"},
+{nome:"Ricardo maia",dia:"05/10/2026",tipo:"FRACIONADO",vei:"Carreta",trecho:"São Paulo-Sp X Itajai-Sc",fat:11542.55,res:2149.1,mg:0.1862,ocup:0.2691,ctes:35,c_transf:1100.0,target:1100.0,dif:0.0,status:"DENTRO DO TARGET"}
 ];
 const PERIODO_INI="2026-09-24";
 const PERIODO_FIM="2026-10-08";
