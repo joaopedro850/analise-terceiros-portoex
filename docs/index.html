@@ -1281,7 +1281,21 @@ function _geralRender(){
         +'<div><div class="cg-dest-slabel">C.Transf</div><div class="cg-dest-sval">'+fmt(op.c_transf)+'</div></div>'
       +'</div></div>';
   }
-  const destaques='<div class="cg-dest-row">'+destCard(melhor,'melhor')+destCard(pior,'pior')+'</div>';
+  let destaques='';
+  if(_geralStatus.length>=3){
+    destaques='<div class="cg-dest-row">'+destCard(melhor,'melhor')+destCard(pior,'pior')+'</div>';
+  }else{
+    const NOMES={'FORA DO TARGET':['Fora do Target','#ef4444'],'DENTRO DO TARGET':['Dentro do Target','#3b82f6'],'ABAIXO DO TARGET':['Abaixo do Target','#22c55e']};
+    ['FORA DO TARGET','DENTRO DO TARGET','ABAIXO DO TARGET'].forEach(st=>{
+      if(_geralStatus.indexOf(st)<0)return;
+      const sub=HIST.filter(o=>o.status===st);
+      if(!sub.length)return;
+      const m=sub.reduce((a,b)=>b.res>a.res?b:a,sub[0]);
+      const p=sub.reduce((a,b)=>b.res<a.res?b:a,sub[0]);
+      destaques+='<div style="margin:10px 0 4px;font-size:.78rem;font-weight:700;letter-spacing:.04em;color:'+NOMES[st][1]+';">'+NOMES[st][0].toUpperCase()+' ('+sub.length+' operações)</div>'
+        +'<div class="cg-dest-row">'+destCard(m,'melhor')+destCard(p,'pior')+'</div>';
+    });
+  }
 
   // Duas tabelas separadas: thead fixa + tbody scrollável
   // 12 colunas: adicionada coluna Trecho após Veículo
